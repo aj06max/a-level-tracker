@@ -2027,30 +2027,60 @@ async function cloudPull(silent=false){
   }
 }
 
-async function cloudInit(){
-  setSync('sync','Syncing');
-  const remote=await cloudLoad();
-  if(!remote){setSync('off','Offline');return;}
-  const rTs=remote.meta&&remote.meta.updatedAt?remote.meta.updatedAt:0;
-  const lTs=localGetTs();
-  if(rTs>lTs){
-    await cloudPull(false);
-  }else{
-    loadAPISettings();
-    setSync('sync','Syncing');
-    scheduleCloudSave();
+
+// Auto-sync every 3 seconds to catch changes from other devices
+let _cloudPollTimer = null;
+
+function startCloudPolling() {
+  if(_cloudPollTimer) return; // Already running
+  
+  _cloudPollTimer = setInterval(() => {
+    if(currentProfile === 'aj') {
+      cloudPull(true); // Silent pull - updates data without showing "Syncing"
+    }
+  }, 3000); // Check every 3 seconds
+}
+
+function stopCloudPolling() {
+  if(_cloudPollTimer) {
+    clearInterval(_cloudPollTimer);
+    _cloudPollTimer = null;
   }
 }
+
+// Start polling when page loads
+window.addEventListener('load', () => {
+  startCloudPolling();
+});
+
+// Stop polling if tab goes inactive
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) {
+    stopCloudPolling();
+  } else {
+    startCloudPolling();
+  }
+});
 
 
 function save(){
   // Only save to localStorage if not guest mode
   if(currentProfile !== 'guest') {
-    try{localStorage.setItem('alrt_R',JSON.stringify(R));localStorage.setItem('alrt_QS',JSON.stringify(QS))}catch(e){}
+    try{localStorage.setItem('alrt_R',JSON.stringify(R));}catch(e){}
+    try{localStorage.setItem('alrt_QS',JSON.stringify(QS));}catch(e){}
+    try{localStorage.setItem('alrt_EX',JSON.stringify(EX));}catch(e){}
   }
   
   // Only trigger cloud sync for AJ profile
   if(currentProfile === 'aj') {
+    localTouchTs(); // Update timestamp
+    scheduleCloudSave();
+  }
+}
+  
+  // Only trigger cloud sync for AJ profile
+  if(currentProfile === 'aj') {
+    localTouchTs(); // Update timestamp
     scheduleCloudSave();
   }
 }
