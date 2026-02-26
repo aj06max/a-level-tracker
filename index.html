@@ -86,7 +86,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
 /* Profile floaters */
 .profile-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.profile-floater{position:absolute;font-size:11px;font-weight:600;font-family:var(--mono);color:rgba(255,107,0,.15);letter-spacing:1px;animation:floatWord linear infinite;white-space:nowrap;user-select:none;text-transform:uppercase}
+.profile-floater{position:absolute;font-size:13px;font-weight:700;font-family:var(--mono);color:rgba(255,107,0,.35);letter-spacing:1px;white-space:nowrap;user-select:none;text-transform:uppercase;opacity:0.35;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.profile-floater:hover{opacity:0.6;transform:scale(1.2);color:rgba(255,107,0,.6)}
 
 .profile-topbar{position:fixed;top:16px;right:20px;z-index:10002;display:flex;align-items:center;gap:8px}
 .profile-topbar .design-toggle{background:var(--surface);border-color:var(--border)}
@@ -132,27 +133,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 /* ═══ LOADING SCREEN ═══════════════════════════════════════ */
 #loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
 #loadingScreen.on{display:flex;animation:fadeIn 0.35s cubic-bezier(.2,.8,.2,1)}
-.loading-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.floater{position:absolute;font-size:10px;font-weight:600;font-family:var(--mono);color:rgba(255,107,0,.18);letter-spacing:1px;animation:floatWord linear infinite;white-space:nowrap;user-select:none;text-transform:uppercase}
-@keyframes floatWord{
-  0%{
-    opacity:0.18;
-    transform:translateY(120vh) translateX(0)
-  }
-  5%{
-    opacity:0.22
-  }
-  50%{
-    opacity:0.18
-  }
-  95%{
-    opacity:0.22
-  }
-  100%{
-    opacity:0.18;
-    transform:translateY(-20vh) translateX(var(--drift,10px))
-  }
-}
+.loading-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.floater{position:absolute;font-size:13px;font-weight:700;font-family:var(--mono);color:rgba(255,107,0,.35);letter-spacing:1px;white-space:nowrap;user-select:none;text-transform:uppercase;opacity:0.35;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.floater:hover{opacity:0.6;transform:scale(1.2);color:rgba(255,107,0,.6)}
+@keyframes floatWord{0%{opacity:0.15}100%{opacity:0.15}}
 .loading-content{text-align:center;max-width:480px;padding:40px;position:relative;z-index:2}
 .loading-logo{display:none}
 .loading-brand{font-size:52px;font-weight:800;color:var(--text);letter-spacing:-2.5px;margin-bottom:6px;font-family:'DM Sans',sans-serif;line-height:1}
@@ -2047,17 +2031,16 @@ function spawnFloaters(targetId = 'loadingFloaters') {
   const c = document.getElementById(targetId);
   if(!c) return;
   c.innerHTML = '';
-  const words = [...FLOATER_WORDS].sort(() => .5-Math.random()).slice(0,30); // More words for continuous effect
+  const words = [...FLOATER_WORDS]; // Use all words
+  
+  // Place all words randomly across the screen - immediately visible
   words.forEach((w, i) => {
     const el = document.createElement('div');
     el.className = targetId === 'loadingFloaters' ? 'floater' : 'profile-floater';
     el.textContent = w;
-    el.style.left = (5 + Math.random()*85)+'%';
-    el.style.bottom = (-150 - Math.random()*50)+'%'; // Start well below viewport
-    el.style.setProperty('--drift',(Math.random()*100-50)+'px');
-    el.style.animationDuration = (25+Math.random()*20)+'s'; // Slow, smooth drift
-    el.style.animationDelay = (i * 1.2)+'s'; // Stagger the start times
-    el.style.animationIterationCount = 'infinite';
+    el.style.left = (5 + Math.random()*90)+'%';
+    el.style.top = (10 + Math.random()*80)+'%';
+    el.style.position = 'absolute';
     c.appendChild(el);
   });
 }
@@ -2269,24 +2252,25 @@ function toggleDesign() {
   if (pinkUnlocked) {
     // With pink unlocked: Modern → Classic → Dark Pink → Light Pink → Modern
     if (isLightPink) {
-      // Light Pink -> Modern
-      document.body.classList.remove('light-pink-theme');
+      // Light Pink -> Modern (cycle back to start)
+      document.body.classList.remove('light-pink-theme', 'pink-theme', 'classic-theme');
       syncDesignIcons('modern');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
     } else if (isPink) {
       // Dark Pink -> Light Pink
-      document.body.classList.remove('pink-theme');
+      document.body.classList.remove('pink-theme', 'classic-theme');
       document.body.classList.add('light-pink-theme');
       syncDesignIcons('light-pink');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'light-pink'); } catch(e) {}
     } else if (isClassic) {
       // Classic -> Dark Pink
-      document.body.classList.remove('classic-theme');
+      document.body.classList.remove('classic-theme', 'light-pink-theme');
       document.body.classList.add('pink-theme');
       syncDesignIcons('pink');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'pink'); } catch(e) {}
     } else {
       // Modern -> Classic
+      document.body.classList.remove('pink-theme', 'light-pink-theme');
       document.body.classList.add('classic-theme');
       syncDesignIcons('classic');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
@@ -2294,10 +2278,11 @@ function toggleDesign() {
   } else {
     // Without pink: Modern → Classic → Modern
     if (isClassic) {
-      document.body.classList.remove('classic-theme');
+      document.body.classList.remove('classic-theme', 'pink-theme', 'light-pink-theme');
       syncDesignIcons('modern');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
     } else {
+      document.body.classList.remove('pink-theme', 'light-pink-theme');
       document.body.classList.add('classic-theme');
       syncDesignIcons('classic');
       try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
