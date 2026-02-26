@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772125713868
+    "updatedAt": 1772125744933
   },
   "R": {
     "maths_py1_m1_0": 9,
@@ -270,7 +270,37 @@
       }
     ]
   },
-  "EX": {},
+  "EX": {
+    "ex_1772125744933": {
+      "id": "ex_1772125744933",
+      "name": "qw",
+      "type": "cp1",
+      "total": null,
+      "qs": [
+        {
+          "q": "1",
+          "part": "b",
+          "sub": "iii",
+          "label": "Q1b iii",
+          "attempts": [
+            {
+              "got": 7,
+              "of": 10,
+              "date": "26/02/2026"
+            }
+          ]
+        }
+      ],
+      "date": "26/02/2026",
+      "overall": [
+        {
+          "got": 34,
+          "of": 78,
+          "date": "26/02/2026"
+        }
+      ]
+    }
+  },
   "aiHistory": [],
   "savedChats": [],
   "groqKey": "",
