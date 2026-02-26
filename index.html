@@ -1798,7 +1798,9 @@ const GITHUB_BRANCH = 'main'; // Branch name
 
 // Get GitHub token from localStorage or prompt user
 function getGitHubToken() {
-  let token = localStorage.getItem('github_token');
+  function getGitHubToken() {
+     return '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'; // Paste your actual token here
+   }
   if (!token && currentProfile === 'aj') {
     token = prompt('Enter your GitHub Personal Access Token:\n\nGo to github.com/settings/tokens\nGenerate new token (classic)\nEnable "repo" permission\nCopy and paste here:');
     if (token) {
