@@ -1356,7 +1356,7 @@ window.MathJax = {
   <div class="password-box">
     <div class="password-title">Enter PIN</div>
     <div class="password-subtitle">AJ · secured workspace</div>
-    <input type="password" inputmode="numeric" pattern="[0-9]*" class="password-input" id="passwordInput" placeholder="• • • • • •" maxlength="6" autocomplete="off" onkeypress="if(event.key==='Enter')checkPassword()">
+    <input type="password" inputmode="numeric" pattern="[0-9]*" class="password-input" id="passwordInput" placeholder="• • • • • •" maxlength="6" autocomplete="off" onkeypress="if(event.key==='Enter')checkPassword()" oninput="if(this.value.length===6)checkPassword()">
     <div class="password-actions">
       <button class="password-btn secondary" onclick="closePasswordModal()">Cancel</button>
       <button class="password-btn primary" onclick="checkPassword()">Unlock →</button>
@@ -5479,8 +5479,8 @@ function showSubjectPopup(subject) {
       {id: 'maths_sm2', label: 'Stats & Mech Y2', icon: '⚙️'}
     ],
     'further': [
-      {id: 'further_fpy1', label: 'Further Pure Y1', icon: '🔬'},
-      {id: 'further_fpy2', label: 'Further Pure Y2', icon: '🧮'},
+      {id: 'further_fpy1', label: 'Core Pure Y1', icon: '🔬'},
+      {id: 'further_fpy2', label: 'Core Pure Y2', icon: '🧮'},
       {id: 'further_fm1', label: 'Further Mech Y1', icon: '⚡'},
       {id: 'further_fm2', label: 'Further Mech Y2', icon: '🎯'}
     ]
@@ -5633,17 +5633,20 @@ function closeTopicModal() {
 document.addEventListener('click', function(e) {
   if (window.innerWidth > 720) return;
   
-  const topicCard = e.target.closest('.topic-card');
-  if (topicCard) {
+  const topicCard = e.target.closest('.scard');
+  if (topicCard && topicCard.classList.contains('topic-card')) {
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     
     const subjectKey = topicCard.dataset.subject;
     const topicKey = topicCard.dataset.topic;
     
     if (subjectKey && topicKey) {
+      console.log('Opening topic modal for:', subjectKey, topicKey);
       showTopicModal(subjectKey, topicKey);
     }
+    return false;
   }
 }, true);
 
