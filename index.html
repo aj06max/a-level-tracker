@@ -56,6 +56,26 @@ body.pink-theme #profileScreen::after{background-image:linear-gradient(rgba(255,
 body.pink-theme .profile-floater{color:rgba(255,133,212,.15)}
 body.pink-theme .floater{color:rgba(255,133,212,.18)}
 
+/* ── LIGHT PINK THEME (secret unlock) ── */
+body.light-pink-theme{
+  --bg:#fff0f9;--white:#fff;--border:#f5d9ed;--text:#5c2b4d;--muted:#a8678f;
+  --light:#fce8f7;--light2:#fff5fc;
+  --red:#d63384;--orange:#e85d9c;--green:#9b6fb8;--blue:#e85d9c;--teal:#c74aa8;
+  --redbg:#ffe8f5;--bluebg:#fff0f9;
+  --surface:#fff;--surface2:#fff5fc;--accent:#e85d9c;--accent2:#d63384;
+}
+body.light-pink-theme .header{background:rgba(255,240,249,0.95)}
+body.light-pink-theme .logo-dot{box-shadow:0 0 12px #e85d9c}
+body.light-pink-theme .tab.on{box-shadow:0 2px 8px rgba(232,93,156,.2)}
+body.light-pink-theme .scard:hover{border-color:#e85d9c}
+body.light-pink-theme .alert.on{border-color:#d63384;background:#ffe8f5}
+body.light-pink-theme .syncpill.ok{border-color:rgba(155,111,184,.3);background:rgba(155,111,184,.08)}
+body.light-pink-theme .syncpill.sync{border-color:rgba(232,93,156,.3);background:rgba(232,93,156,.08)}
+body.light-pink-theme .syncpill.off{border-color:rgba(214,51,132,.3);background:rgba(214,51,132,.08)}
+body.light-pink-theme #profileScreen::after{background-image:linear-gradient(rgba(232,93,156,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,93,156,.03) 1px,transparent 1px)}
+body.light-pink-theme .profile-floater{color:rgba(232,93,156,.15)}
+body.light-pink-theme .floater{color:rgba(232,93,156,.18)}
+
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
 
 /* ═══ PROFILE SELECTION SCREEN ═══════════════════════════════ */
@@ -114,7 +134,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 #loadingScreen.on{display:flex;animation:fadeIn 0.35s cubic-bezier(.2,.8,.2,1)}
 .loading-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .floater{position:absolute;font-size:10px;font-weight:600;font-family:var(--mono);color:rgba(255,107,0,.18);letter-spacing:1px;animation:floatWord linear infinite;white-space:nowrap;user-select:none;text-transform:uppercase}
-@keyframes floatWord{0%{opacity:0;transform:translateY(0) translateX(0)}8%{opacity:1}85%{opacity:.5}100%{opacity:0;transform:translateY(-110px) translateX(var(--drift,10px))}}
+@keyframes floatWord{
+  0%{
+    opacity:0.18;
+    transform:translateY(120vh) translateX(0)
+  }
+  5%{
+    opacity:0.22
+  }
+  50%{
+    opacity:0.18
+  }
+  95%{
+    opacity:0.22
+  }
+  100%{
+    opacity:0.18;
+    transform:translateY(-20vh) translateX(var(--drift,10px))
+  }
+}
 .loading-content{text-align:center;max-width:480px;padding:40px;position:relative;z-index:2}
 .loading-logo{display:none}
 .loading-brand{font-size:52px;font-weight:800;color:var(--text);letter-spacing:-2.5px;margin-bottom:6px;font-family:'DM Sans',sans-serif;line-height:1}
@@ -400,192 +438,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     padding: 24px 20px 40px;
   }
 
-  /* Mobile AI Panel improvements */
+  /* Mobile AI Panel - Hidden on mobile */
   #aiPanel {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    border: none !important;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
+    display: none !important;
   }
   
-  #aiPanel.on {
-    transform: translateY(0);
-  }
-  
-  .ai-head {
-    padding: 16px 16px 12px;
-    padding-top: calc(16px + env(safe-area-inset-top));
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  
-  .ai-hdr {
-    padding: 0;
-    border: none;
-    cursor: default;
-  }
-  
-  .ai-hdr::before {
-    display: none;
-  }
-  
-  .ai-msgs {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 16px;
-    max-height: none !important;
-    min-height: 0;
-  }
-  
-  .ai-msg {
-    margin-bottom: 12px;
-  }
-  
-  /* Modern message bubbles */
-  .ai-msg.ai .ai-bubble {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 18px 18px 18px 4px;
-    padding: 12px 16px;
-    max-width: 80%;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-  
-  .ai-msg.user .ai-bubble {
-    background: var(--accent);
-    color: #fff;
-    border-radius: 18px 18px 4px 18px;
-    padding: 12px 16px;
-    max-width: 80%;
-    font-size: 15px;
-    line-height: 1.5;
-    box-shadow: 0 2px 8px rgba(255,107,0,0.2);
-  }
-  
-  /* Input area */
-  .ai-input-row {
-    padding: 12px 16px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-    background: var(--surface);
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-  }
-  
-  .ai-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 22px;
-    padding: 12px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px !important;
-    color: var(--text);
-    outline: none;
-    resize: none;
-    min-height: 44px;
-    max-height: 120px;
-    transition: border-color .2s;
-    line-height: 1.4;
-  }
-  
-  .ai-input:focus {
-    border-color: var(--accent);
-  }
-  
-  .ai-send {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 18px;
-    box-shadow: 0 2px 8px rgba(255,107,0,0.3);
-  }
-  
-  .ai-send:active {
-    transform: scale(0.95);
-  }
-  
-  .ai-send:disabled {
-    background: var(--light);
-    color: var(--muted);
-    box-shadow: none;
-  }
-  
-  /* Chips */
-  .ai-chips {
-    padding: 0 16px 12px;
-    gap: 8px;
-  }
-  
-  .ai-chip {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  #aiResizeHandle {
-    display: none;
-  }
-  
-  /* Avatar */
-  .ai-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-  }
-  
-  .ai-msg.user .ai-avatar {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
+  .ai-btn {
+    display: none !important;
   }
 
   /* Mobile AI toggle button */
   .ai-toggle {
-    position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom));
-    right: 16px;
-    width: 56px;
-    height: 56px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 24px rgba(255,107,0,0.4);
-    cursor: pointer;
-    z-index: 300;
-    color: #fff;
-    font-size: 24px;
-    border: none;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: none !important; /* Completely hidden on mobile */
   }
   
-  .ai-toggle:active {
-    transform: scale(0.9);
+  /* Hide AI button on mobile */
+  .ai-btn {
+    display: none !important;
   }
   
-  .ai-toggle.hidden {
-    transform: scale(0);
-    opacity: 0;
+  /* Hide AI panel on mobile */
+  #aiPanel {
+    display: none !important;
   }
 }
 
@@ -2173,16 +2047,17 @@ function spawnFloaters(targetId = 'loadingFloaters') {
   const c = document.getElementById(targetId);
   if(!c) return;
   c.innerHTML = '';
-  const words = [...FLOATER_WORDS].sort(() => .5-Math.random()).slice(0,16);
-  words.forEach(w => {
+  const words = [...FLOATER_WORDS].sort(() => .5-Math.random()).slice(0,30); // More words for continuous effect
+  words.forEach((w, i) => {
     const el = document.createElement('div');
     el.className = targetId === 'loadingFloaters' ? 'floater' : 'profile-floater';
     el.textContent = w;
-    el.style.left = (Math.random()*88)+'%';
-    el.style.bottom = (Math.random()*70)+'%';
-    el.style.setProperty('--drift',(Math.random()*60-30)+'px');
-    el.style.animationDuration = (15+Math.random()*12)+'s';
-    el.style.animationDelay = (Math.random()*8)+'s';
+    el.style.left = (5 + Math.random()*85)+'%';
+    el.style.bottom = (-150 - Math.random()*50)+'%'; // Start well below viewport
+    el.style.setProperty('--drift',(Math.random()*100-50)+'px');
+    el.style.animationDuration = (25+Math.random()*20)+'s'; // Slow, smooth drift
+    el.style.animationDelay = (i * 1.2)+'s'; // Stagger the start times
+    el.style.animationIterationCount = 'infinite';
     c.appendChild(el);
   });
 }
@@ -2191,17 +2066,8 @@ function spawnFloaters(targetId = 'loadingFloaters') {
 window.addEventListener('DOMContentLoaded', () => {
   const profileFloaters = document.querySelector('.profile-floaters');
   if (profileFloaters) {
+    profileFloaters.id = 'profileFloaters';
     spawnFloaters('profileFloaters');
-    // Re-spawn every 30 seconds for variety
-    setInterval(() => {
-      if (!document.getElementById('profileScreen').classList.contains('hidden')) {
-        const container = document.querySelector('.profile-floaters');
-        if (container) {
-          container.id = 'profileFloaters';
-          spawnFloaters('profileFloaters');
-        }
-      }
-    }, 30000);
   }
 });
 
@@ -2326,18 +2192,21 @@ function cleanOldImages() {
 // ══ DESIGN TOGGLE ═════════════════════════════════════════════
 let themeClickCount = 0;
 let themeClickTimer = null;
+let pinkUnlocked = false; // Track if pink themes are unlocked
 
 function syncDesignIcons(theme) {
-  // theme can be: 'modern', 'classic', or 'pink'
+  // theme can be: 'modern', 'classic', 'pink', or 'light-pink'
   const icons = {
     modern: '🌙',
     classic: '☀️',
-    pink: '💖'
+    pink: '💖',
+    'light-pink': '🌸'
   };
   const labels = {
     modern: 'DARK',
     classic: 'LIGHT',
-    pink: 'PINK'
+    pink: 'PINK',
+    'light-pink': 'LIGHT PINK'
   };
   
   const sets = [
@@ -2364,9 +2233,13 @@ function toggleDesign() {
     themeClickCount = 0;
   }, 2000); // Reset after 2 seconds
   
-  // Secret: 10 fast clicks unlocks pink theme
-  if (themeClickCount === 10) {
-    document.body.classList.remove('classic-theme');
+  // Secret: 10 fast clicks unlocks pink themes
+  if (themeClickCount === 10 && !pinkUnlocked) {
+    pinkUnlocked = true;
+    try { localStorage.setItem('pink_unlocked', 'true'); } catch(e) {}
+    
+    // Switch to dark pink immediately
+    document.body.classList.remove('classic-theme', 'light-pink-theme');
     document.body.classList.add('pink-theme');
     syncDesignIcons('pink');
     try { localStorage.setItem(`alrt_design_${currentProfile}`, 'pink'); } catch(e) {}
@@ -2374,53 +2247,85 @@ function toggleDesign() {
     // Show celebration message
     const celebration = document.createElement('div');
     celebration.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border:2px solid var(--accent);border-radius:20px;padding:32px 40px;z-index:100000;text-align:center;animation:scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 60px rgba(0,0,0,0.5)';
-    celebration.innerHTML = '<div style="font-size:48px;margin-bottom:12px">✨💖✨</div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">Pink Theme Unlocked!</div><div style="font-size:12px;color:var(--muted)">You found the secret theme 🎉</div>';
+    celebration.innerHTML = '<div style="font-size:48px;margin-bottom:12px">✨💖🌸✨</div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">Pink Themes Unlocked!</div><div style="font-size:12px;color:var(--muted)">Now available: Dark Pink 💖 & Light Pink 🌸</div>';
     document.body.appendChild(celebration);
     setTimeout(() => {
       celebration.style.opacity = '0';
       celebration.style.transform = 'translate(-50%,-50%) scale(0.9)';
       celebration.style.transition = 'all 0.3s';
       setTimeout(() => celebration.remove(), 300);
-    }, 2500);
+    }, 3000);
     
     themeClickCount = 0;
     return;
   }
   
-  // Normal theme cycling
+  // Get current theme
   const isPink = document.body.classList.contains('pink-theme');
+  const isLightPink = document.body.classList.contains('light-pink-theme');
   const isClassic = document.body.classList.contains('classic-theme');
   
-  if (isPink) {
-    // Pink -> Modern
-    document.body.classList.remove('pink-theme');
-    syncDesignIcons('modern');
-    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
-  } else if (isClassic) {
-    // Classic -> Modern
-    document.body.classList.remove('classic-theme');
-    syncDesignIcons('modern');
-    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
+  // Theme cycling logic
+  if (pinkUnlocked) {
+    // With pink unlocked: Modern → Classic → Dark Pink → Light Pink → Modern
+    if (isLightPink) {
+      // Light Pink -> Modern
+      document.body.classList.remove('light-pink-theme');
+      syncDesignIcons('modern');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
+    } else if (isPink) {
+      // Dark Pink -> Light Pink
+      document.body.classList.remove('pink-theme');
+      document.body.classList.add('light-pink-theme');
+      syncDesignIcons('light-pink');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'light-pink'); } catch(e) {}
+    } else if (isClassic) {
+      // Classic -> Dark Pink
+      document.body.classList.remove('classic-theme');
+      document.body.classList.add('pink-theme');
+      syncDesignIcons('pink');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'pink'); } catch(e) {}
+    } else {
+      // Modern -> Classic
+      document.body.classList.add('classic-theme');
+      syncDesignIcons('classic');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
+    }
   } else {
-    // Modern -> Classic
-    document.body.classList.add('classic-theme');
-    syncDesignIcons('classic');
-    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
+    // Without pink: Modern → Classic → Modern
+    if (isClassic) {
+      document.body.classList.remove('classic-theme');
+      syncDesignIcons('modern');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
+    } else {
+      document.body.classList.add('classic-theme');
+      syncDesignIcons('classic');
+      try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
+    }
   }
 }
 
 // Load saved design preference for current profile
 function loadDesignPreference() {
   try {
+    // Check if pink themes were unlocked
+    const unlocked = localStorage.getItem('pink_unlocked');
+    if (unlocked === 'true') {
+      pinkUnlocked = true;
+    }
+    
     const savedDesign = localStorage.getItem(`alrt_design_${currentProfile}`);
     if(savedDesign === 'classic') {
       document.body.classList.add('classic-theme');
       syncDesignIcons('classic');
-    } else if(savedDesign === 'pink') {
+    } else if(savedDesign === 'pink' && pinkUnlocked) {
       document.body.classList.add('pink-theme');
       syncDesignIcons('pink');
+    } else if(savedDesign === 'light-pink' && pinkUnlocked) {
+      document.body.classList.add('light-pink-theme');
+      syncDesignIcons('light-pink');
     } else {
-      document.body.classList.remove('classic-theme', 'pink-theme');
+      document.body.classList.remove('classic-theme', 'pink-theme', 'light-pink-theme');
       syncDesignIcons('modern');
     }
   } catch(e) {}
@@ -5739,44 +5644,6 @@ function closeTopicModal() {
   }
 }
 
-// Mobile: AI Panel toggle
-function toggleAIPanel() {
-  const panel = document.getElementById('aiPanel');
-  const toggleBtn = document.getElementById('aiToggleBtn');
-  
-  if (!panel) return;
-  
-  if (panel.classList.contains('on')) {
-    panel.classList.remove('on');
-    if (toggleBtn) toggleBtn.style.display = 'flex';
-  } else {
-    panel.classList.add('on');
-    if (toggleBtn) toggleBtn.style.display = 'none';
-  }
-}
-
-// Mobile: Show AI toggle button on mobile
-if (window.innerWidth <= 720) {
-  const toggleBtn = document.getElementById('aiToggleBtn');
-  const aiBtn = document.querySelector('.ai-btn');
-  
-  if (toggleBtn) {
-    toggleBtn.style.display = 'flex';
-  }
-  
-  // Hide the original AI button on mobile
-  if (aiBtn) {
-    aiBtn.style.display = 'none';
-  }
-  
-  // Close AI panel when clicking outside on mobile
-  document.getElementById('aiPanel')?.addEventListener('click', (e) => {
-    if (e.target.id === 'aiPanel') {
-      toggleAIPanel();
-    }
-  });
-}
-
 // Mobile: Intercept topic card clicks on mobile
 document.addEventListener('click', function(e) {
   if (window.innerWidth > 720) return;
@@ -5813,45 +5680,6 @@ if (typeof originalSwitchSubject === 'function') {
   console.error('switchSubject function not found!');
 }
 
-// Mobile: Add swipe-down to close AI panel
-if (window.innerWidth <= 720) {
-  const aiPanel = document.getElementById('aiPanel');
-  const aiHdr = aiPanel?.querySelector('.ai-hdr');
-  
-  if (aiPanel && aiHdr) {
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
-    
-    aiHdr.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-      isDragging = true;
-    }, {passive: true});
-    
-    aiHdr.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      currentY = e.touches[0].clientY;
-      const diff = currentY - startY;
-      
-      if (diff > 0) { // Only allow dragging down
-        aiPanel.style.transform = `translateY(${diff}px)`;
-      }
-    }, {passive: true});
-    
-    aiHdr.addEventListener('touchend', () => {
-      if (!isDragging) return;
-      isDragging = false;
-      
-      const diff = currentY - startY;
-      
-      if (diff > 100) { // Dragged down more than 100px
-        toggleAIPanel();
-      }
-      
-      aiPanel.style.transform = '';
-    }, {passive: true});
-  }
-}
 
 // Mobile: Update render function to add data attributes to topic cards
 const originalRender = window.render;
