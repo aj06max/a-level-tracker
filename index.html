@@ -104,12 +104,52 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 @keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes fadeInOut{0%,100%{opacity:0.5}50%{opacity:1}}
 
-/* ═══ MOBILE HEADER REDESIGN ════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   MOBILE OPTIMIZATIONS 
+   ══════════════════════════════════════════════════════════ */
+
+/* Mobile: Auto-hide header on scroll */
 @media(max-width:720px){
-  .header{padding:8px 0 0;background:rgba(15,15,15,0.98)}
+  /* Fix iPhone notch background */
+  html {
+    background: var(--bg);
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--bg);
+    padding: 8px 0 0;
+    padding-top: calc(8px + env(safe-area-inset-top));
+  }
+  
+  .header.header-hidden {
+    transform: translateY(-100%);
+  }
+  
+  .header.header-show {
+    transform: translateY(0);
+  }
+  
+  body.classic-theme .header {
+    background: var(--bg);
+  }
+  
+  /* Hide subtabs completely on mobile - shown via popup */
+  .header-row2 {
+    display: none !important;
+  }
+  
   .header-row1{padding:0 12px 6px;gap:6px;min-height:48px}
-  .header-row2{padding:0 12px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .header-row2::-webkit-scrollbar{display:none}
   .logo{gap:6px}
   .logo-dot{width:6px;height:6px}
   .app-title{font-size:13px;letter-spacing:-0.2px}
@@ -120,10 +160,325 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   .syncpill{font-size:10px;padding:4px 8px;gap:4px}
   .tabs{padding:2px;gap:1px;border-radius:8px}
   .tab{padding:6px 10px;font-size:11px;border-radius:6px}
-  .subtabs{gap:3px;flex-wrap:nowrap;padding-bottom:2px}
-  .stab{padding:5px 10px;font-size:10px;white-space:nowrap;border-radius:6px}
   .hprog{display:none}
-  body.classic-theme .header{background:rgba(255,255,255,0.98)}
+  
+  /* Main content spacing */
+  .main {
+    margin-top: 0;
+    padding-top: calc(70px + env(safe-area-inset-top));
+  }
+  
+  /* Overview tiles container */
+  .overview-tiles {
+    position: sticky;
+    top: calc(60px + env(safe-area-inset-top));
+    z-index: 100;
+    margin: 0 -12px 20px;
+    padding: 12px;
+    background: var(--bg);
+    transform: translateX(0);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+  }
+  
+  .overview-tiles.tiles-hidden {
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Subject selection popup for mobile */
+  .subject-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(20px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .subject-popup.on {
+    display: flex;
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .subject-popup-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  .subject-popup-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.4px;
+    text-align: center;
+  }
+
+  .subject-popup-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  .subject-popup-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .subject-option {
+    padding: 16px 18px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .subject-option:active {
+    transform: scale(0.98);
+  }
+
+  .subject-option:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .subject-option-arrow {
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .subject-popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 18px;
+  }
+
+  /* Topic modal (full screen zoom-in) */
+  .topic-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(30, 60, 114, 0.3);
+    backdrop-filter: blur(24px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .topic-modal.on {
+    display: flex;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  .topic-modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: zoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  .topic-modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .topic-modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.3px;
+    flex: 1;
+  }
+
+  .topic-modal-close {
+    width: 36px;
+    height: 36px;
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .topic-modal-close:active {
+    transform: scale(0.9);
+  }
+
+  .topic-modal-body {
+    padding: 24px 20px 40px;
+  }
+
+  /* Mobile AI Panel improvements */
+  #aiPanel {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 70vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  #aiPanel.on {
+    transform: translateY(0);
+  }
+  
+  .ai-hdr {
+    padding: 20px 16px 12px;
+    cursor: grab;
+    position: relative;
+  }
+  
+  .ai-hdr:active {
+    cursor: grabbing;
+  }
+  
+  /* Add a drag handle indicator */
+  .ai-hdr::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  
+  .ai-msgs {
+    max-height: calc(70vh - 200px) !important;
+    padding-bottom: 80px;
+  }
+  
+  .ai-bottom {
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  
+  #aiInput {
+    font-size: 16px !important;
+  }
+  
+  #aiResizeHandle {
+    display: none;
+  }
+
+  /* Mobile AI toggle button */
+  .ai-toggle {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 24px rgba(255,107,0,0.4);
+    cursor: pointer;
+    z-index: 300;
+    color: #fff;
+    font-size: 24px;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .ai-toggle:active {
+    transform: scale(0.9);
+  }
+  
+  .ai-toggle.hidden {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Animations used by mobile features */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ══ DESIGN TOGGLE BUTTON ══ */
@@ -4884,7 +5239,374 @@ function resetAIPanelSize() {
 // Load API settings on init
 loadAPISettings();
 
+// ═══════════════════════════════════════════════════════════
+// MOBILE OPTIMIZATIONS
+// ═══════════════════════════════════════════════════════════
+
+// Mobile: Header auto-hide on scroll
+let lastScrollY = 0;
+let ticking = false;
+let scrollThreshold = 50;
+
+function updateMobileHeader() {
+  if (window.innerWidth > 720) return; // Desktop only
+  
+  const currentScrollY = window.scrollY;
+  const header = document.querySelector('.header');
+  const overviewTiles = document.querySelector('.overview-tiles');
+  
+  if (!header) return;
+  
+  // Show header on scroll up, hide on scroll down
+  if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
+    // Scrolling down
+    header.classList.add('header-hidden');
+    header.classList.remove('header-show');
+    if (overviewTiles) {
+      overviewTiles.classList.add('tiles-hidden');
+    }
+  } else {
+    // Scrolling up
+    header.classList.remove('header-hidden');
+    header.classList.add('header-show');
+    if (overviewTiles && currentScrollY < 100) {
+      overviewTiles.classList.remove('tiles-hidden');
+    }
+  }
+  
+  lastScrollY = currentScrollY;
+  ticking = false;
+}
+
+function requestMobileHeaderUpdate() {
+  if (!ticking) {
+    window.requestAnimationFrame(updateMobileHeader);
+    ticking = true;
+  }
+}
+
+if (window.innerWidth <= 720) {
+  window.addEventListener('scroll', requestMobileHeaderUpdate, {passive: true});
+}
+
+// Mobile: Subject popup (for Maths/Further Maths subtabs)
+function showSubjectPopup(subject) {
+  if (window.innerWidth > 720) return; // Only on mobile
+  
+  const popup = document.getElementById('subjectPopup');
+  const optionsContainer = document.getElementById('subjectPopupOptions');
+  
+  if (!popup || !optionsContainer) return;
+  
+  // Define subtabs for each subject (matching actual IDs from the code)
+  const subtabs = {
+    'maths': [
+      {id: 'maths_py1', label: 'Pure Year 1', icon: '📐'},
+      {id: 'maths_py2', label: 'Pure Year 2', icon: '📊'},
+      {id: 'maths_sm1', label: 'Stats & Mech Y1', icon: '📈'},
+      {id: 'maths_sm2', label: 'Stats & Mech Y2', icon: '⚙️'}
+    ],
+    'further': [
+      {id: 'further_fpy1', label: 'Further Pure Y1', icon: '🔬'},
+      {id: 'further_fpy2', label: 'Further Pure Y2', icon: '🧮'},
+      {id: 'further_fm1', label: 'Further Mech Y1', icon: '⚡'},
+      {id: 'further_fm2', label: 'Further Mech Y2', icon: '🎯'}
+    ]
+  };
+  
+  const options = subtabs[subject] || [];
+  
+  optionsContainer.innerHTML = options.map(opt => `
+    <div class="subject-option" onclick="selectSubject('${subject}', '${opt.id}')">
+      <span>${opt.icon} ${opt.label}</span>
+      <span class="subject-option-arrow">→</span>
+    </div>
+  `).join('');
+  
+  popup.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function selectSubject(subject, subtabId) {
+  closeSubjectPopup();
+  
+  // Temporarily bypass the popup for this selection
+  window._bypassMobilePopup = true;
+  
+  // First switch to the main tab
+  if (typeof switchTab === 'function') {
+    switchTab(subject);
+  }
+  // Then switch to the specific subtab after a brief delay
+  setTimeout(() => {
+    if (typeof switchSubTab === 'function') {
+      switchSubTab(subtabId);
+    }
+    // Re-enable popup after subtab is selected
+    setTimeout(() => {
+      window._bypassMobilePopup = false;
+    }, 200);
+  }, 150);
+}
+
+function closeSubjectPopup() {
+  const popup = document.getElementById('subjectPopup');
+  if (popup) {
+    popup.classList.remove('on');
+    document.body.style.overflow = '';
+  }
+}
+
+// Mobile: Topic modal (full screen zoom-in for topic cards)
+let currentTopicData = null;
+
+function showTopicModal(subjectKey, topicKey) {
+  if (window.innerWidth > 720) return false; // Only on mobile, let desktop handle it normally
+  
+  const modal = document.getElementById('topicModal');
+  const titleEl = document.getElementById('topicModalTitle');
+  const bodyEl = document.getElementById('topicModalBody');
+  
+  if (!modal || !titleEl || !bodyEl) return false;
+  
+  // Get the topic data
+  const topic = SUBS[subjectKey]?.topics[topicKey];
+  if (!topic) return false;
+  
+  currentTopicData = {subject: subjectKey, topic: topicKey};
+  
+  titleEl.textContent = topic.name;
+  
+  // Build the topic content (similar to existing topic view)
+  const rating = R[subjectKey]?.[topicKey]?.rating || 0;
+  const note = R[subjectKey]?.[topicKey]?.note || '';
+  
+  const stars = [1,2,3,4,5].map(i => 
+    `<div class="tstar ${i <= rating ? 'on' : ''}" style="color:${['','var(--red)','var(--orange)','var(--teal)','var(--blue)','var(--green)'][i] || 'var(--muted)'}" data-val="${i}">★</div>`
+  ).join('');
+  
+  bodyEl.innerHTML = `
+    <div class="topic-rating-section">
+      <div class="topic-rating-label">How confident are you?</div>
+      <div class="topic-stars" data-subject="${subjectKey}" data-topic="${topicKey}">
+        ${stars}
+      </div>
+    </div>
+    
+    <div class="topic-notes-section" style="margin-top: 24px;">
+      <div class="topic-notes-label" style="font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: var(--mono); text-transform: uppercase;">Notes</div>
+      <textarea class="topic-notes-input" data-subject="${subjectKey}" data-topic="${topicKey}" 
+        placeholder="Add notes about this topic..." 
+        style="width: 100%; min-height: 120px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; outline: none;">${note}</textarea>
+    </div>
+  `;
+  
+  // Add event listeners for stars
+  bodyEl.querySelectorAll('.tstar').forEach(star => {
+    star.addEventListener('click', function() {
+      const val = parseInt(this.dataset.val);
+      const subj = this.closest('.topic-stars').dataset.subject;
+      const top = this.closest('.topic-stars').dataset.topic;
+      setRating(subj, top, val);
+      
+      // Update stars in modal
+      this.parentElement.querySelectorAll('.tstar').forEach((s, i) => {
+        if (i < val) {
+          s.classList.add('on');
+        } else {
+          s.classList.remove('on');
+        }
+      });
+    });
+  });
+  
+  // Add event listener for notes
+  const notesInput = bodyEl.querySelector('.topic-notes-input');
+  if (notesInput) {
+    notesInput.addEventListener('input', function() {
+      const subj = this.dataset.subject;
+      const top = this.dataset.topic;
+      setNote(subj, top, this.value);
+    });
+  }
+  
+  modal.classList.add('on');
+  document.body.style.overflow = 'hidden';
+  
+  return true; // Indicate that we handled it
+}
+
+function closeTopicModal() {
+  const modal = document.getElementById('topicModal');
+  if (modal) {
+    modal.classList.remove('on');
+    document.body.style.overflow = '';
+    currentTopicData = null;
+    render(); // Re-render to update any changes
+  }
+}
+
+// Mobile: AI Panel toggle
+function toggleAIPanel() {
+  const panel = document.getElementById('aiPanel');
+  const toggleBtn = document.getElementById('aiToggleBtn');
+  
+  if (!panel) return;
+  
+  if (panel.classList.contains('on')) {
+    panel.classList.remove('on');
+    if (toggleBtn) toggleBtn.style.display = 'flex';
+  } else {
+    panel.classList.add('on');
+    if (toggleBtn) toggleBtn.style.display = 'none';
+  }
+}
+
+// Mobile: Show AI toggle button on mobile
+if (window.innerWidth <= 720) {
+  const toggleBtn = document.getElementById('aiToggleBtn');
+  const aiBtn = document.querySelector('.ai-btn');
+  
+  if (toggleBtn) {
+    toggleBtn.style.display = 'flex';
+  }
+  
+  // Hide the original AI button on mobile
+  if (aiBtn) {
+    aiBtn.style.display = 'none';
+  }
+  
+  // Close AI panel when clicking outside on mobile
+  document.getElementById('aiPanel')?.addEventListener('click', (e) => {
+    if (e.target.id === 'aiPanel') {
+      toggleAIPanel();
+    }
+  });
+}
+
+// Mobile: Intercept topic card clicks on mobile
+document.addEventListener('click', function(e) {
+  if (window.innerWidth > 720) return;
+  
+  const topicCard = e.target.closest('.topic-card');
+  if (topicCard) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const subjectKey = topicCard.dataset.subject;
+    const topicKey = topicCard.dataset.topic;
+    
+    if (subjectKey && topicKey) {
+      showTopicModal(subjectKey, topicKey);
+    }
+  }
+}, true);
+
+// Mobile: Intercept main tab clicks to show popup for maths/further
+const originalSwitchTab = window.switchTab;
+if (typeof originalSwitchTab === 'function') {
+  window.switchTab = function(tabName) {
+    // Only show popup if we're on mobile, it's maths/further, and not bypassing
+    if (window.innerWidth <= 720 && (tabName === 'maths' || tabName === 'further') && !window._bypassMobilePopup) {
+      showSubjectPopup(tabName);
+      return;
+    }
+    originalSwitchTab(tabName);
+  };
+}
+
+// Mobile: Add swipe-down to close AI panel
+if (window.innerWidth <= 720) {
+  const aiPanel = document.getElementById('aiPanel');
+  const aiHdr = aiPanel?.querySelector('.ai-hdr');
+  
+  if (aiPanel && aiHdr) {
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    aiHdr.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      isDragging = true;
+    }, {passive: true});
+    
+    aiHdr.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+      
+      if (diff > 0) { // Only allow dragging down
+        aiPanel.style.transform = `translateY(${diff}px)`;
+      }
+    }, {passive: true});
+    
+    aiHdr.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      const diff = currentY - startY;
+      
+      if (diff > 100) { // Dragged down more than 100px
+        toggleAIPanel();
+      }
+      
+      aiPanel.style.transform = '';
+    }, {passive: true});
+  }
+}
+
+// Mobile: Update render function to add data attributes to topic cards
+const originalRender = window.render;
+if (typeof originalRender === 'function') {
+  window.render = function() {
+    originalRender();
+    
+    // Add data attributes to topic cards for mobile
+    if (window.innerWidth <= 720) {
+      document.querySelectorAll('.scard').forEach(card => {
+        const onclick = card.getAttribute('onclick');
+        if (onclick) {
+          const match = onclick.match(/pick\('(\w+)','(\w+)'\)/);
+          if (match) {
+            card.dataset.subject = match[1];
+            card.dataset.topic = match[2];
+            card.classList.add('topic-card');
+          }
+        }
+      });
+    }
+  };
+}
+
 </script>
+
+<!-- Mobile Subject Selection Popup -->
+<div id="subjectPopup" class="subject-popup">
+  <div class="subject-popup-content">
+    <div class="subject-popup-close" onclick="closeSubjectPopup()">×</div>
+    <div class="subject-popup-title">Select Topic Area</div>
+    <div class="subject-popup-subtitle">Choose a subject to view</div>
+    <div class="subject-popup-options" id="subjectPopupOptions">
+      <!-- Options will be inserted by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Topic Modal (Full Screen) -->
+<div id="topicModal" class="topic-modal">
+  <div class="topic-modal-content">
+    <div class="topic-modal-header">
+      <div class="topic-modal-title" id="topicModalTitle">Topic</div>
+      <div class="topic-modal-close" onclick="closeTopicModal()">×</div>
+    </div>
+    <div class="topic-modal-body" id="topicModalBody">
+      <!-- Topic content will be inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Mobile AI Toggle Button -->
+<button class="ai-toggle" id="aiToggleBtn" onclick="toggleAIPanel()" style="display: none;">✨</button>
 
 </body>
 </html>
