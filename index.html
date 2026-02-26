@@ -1812,10 +1812,19 @@ function getGitHubToken() {
     const entered = prompt('Enter your GitHub Personal Access Token\n\nGo to github.com/settings/tokens\nGenerate new token (classic)\nEnable "repo" permission\nCopy and paste here:');
     token = (entered || '').trim();
     if (token) {
-      try { localStorage.setItem(GITHUB_TOKEN_KEY, token); } catch (e) {}
+      try { 
+        localStorage.setItem(GITHUB_TOKEN_KEY, token);
+        console.log('Token saved:', token.substring(0, 10) + '...');
+      } catch (e) {
+        console.error('Failed to save token:', e);
+      }
     }
   }
 
+  if (!token) {
+    console.warn('No GitHub token found');
+  }
+  
   return token;
 }
 
@@ -1898,6 +1907,7 @@ async function cloudSaveNow(){
     _cloudInFlight=false;
     return;
   }
+  console.log('Token found, attempting save...');
   
   try{
     // Get current file SHA (required for updating)
@@ -1938,12 +1948,15 @@ async function cloudSaveNow(){
       })
     });
     
-    if(!putRes.ok){
+        if(!putRes.ok){
+      const errorBody = await putRes.json().catch(() => ({}));
+      console.error('GitHub API Error:', putRes.status, errorBody);
       if(putRes.status===401||putRes.status===403){
         clearGitHubToken();
-        setSync('off','Auth failed');
+        setSync('off','Token invalid - enter new token');
+        console.warn('Auth failed - token cleared');
       }
-      throw new Error('HTTP '+putRes.status);
+      throw new Error('HTTP '+putRes.status + ': ' + (errorBody.message || ''));
     }
     setSync('ok','Synced');
   }catch(e){
