@@ -185,6 +185,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     opacity: 0;
     pointer-events: none;
   }
+  
+  /* Zoom topics when overview tiles hidden */
+  .page {
+    padding: 14px 12px 100px;
+  }
+  
+  .grid {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
   /* Subject selection popup for mobile */
   .subject-popup {
@@ -491,6 +500,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .header{background:rgba(15,15,15,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;padding:10px 0 0}
 .header-row1{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 28px 8px 9px}
 .header-row2{max-width:1160px;margin:0 auto;padding:0 28px 8px 28px}
+
+/* Desktop: Ensure tabs stay on the right */
+@media(min-width:721px){
+  .header-mob-tabs{display:none !important}
+  .tabs{order:10}
+}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
 .app-title{font-size:15px;font-weight:700;letter-spacing:-.4px;color:var(--text)}
@@ -1237,9 +1252,12 @@ svg.ring{overflow:visible;flex-shrink:0}
 .ai-hbtn.settings{font-size:13px}
 
 /* ═══ MOBILE HAMBURGER MENU ════════════════════════════════ */
-.mob-menu-btn{display:none;width:38px;height:38px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;flex-direction:column;gap:5px;transition:all .2s;-webkit-tap-highlight-color:transparent;padding:0}
-.mob-menu-btn span{display:block;width:16px;height:1.5px;background:var(--muted);border-radius:2px;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.mob-menu-btn{display:none;width:38px;height:38px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;flex-direction:column;gap:5px;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);-webkit-tap-highlight-color:transparent;padding:0}
+.mob-menu-btn span{display:block;width:16px;height:1.5px;background:var(--muted);border-radius:2px;transition:all .35s cubic-bezier(0.4, 0, 0.2, 1)}
 .mob-menu-btn:active{background:var(--light)}
+.mob-menu-btn.open span:nth-child(1){transform:rotate(45deg) translateY(5px) translateX(5px)}
+.mob-menu-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.mob-menu-btn.open span:nth-child(3){transform:rotate(-45deg) translateY(-5px) translateX(5px)}
 @media(max-width:720px){
   .mob-menu-btn{display:flex}
   .hright .design-toggle,.hright label.design-toggle,.hright .syncpill,.hright .stopwatch,.switch-profile-btn{display:none !important}
@@ -1409,7 +1427,7 @@ window.MathJax = {
         <button class="swb" onclick="swReset()" style="background:var(--light);color:var(--muted)">↺</button>
       </div>
       <div class="syncpill sync" id="syncPill" title="Cloud sync status">☁️ <b id="syncTxt">Syncing</b></div>
-      <button class="switch-profile-btn" onclick="switchProfile()" title="Switch profile">⇄ Profile</button>
+      <button class="switch-profile-btn" onclick="switchProfile()" id="profileSwitchBtn" title="Switch profile">⇄ <span id="currentProfileLabel">Guest</span></button>
       <div class="tabs">
         <button class="tab on" onclick="switchSubject('maths')" id="tMaths">Maths</button>
         <button class="tab" onclick="switchSubject('fm')" id="tFM">Further Maths</button>
@@ -1477,12 +1495,14 @@ window.MathJax = {
 
 <!-- PAGE -->
 <div class="page">
-  <div class="summary">
-    <div class="scard"><div class="snum" id="sAvg" style="color:var(--blue)">—</div><div class="slbl">Overall avg</div><div class="scard-bar"><div class="scard-bar-fill" id="sAvgB" style="background:var(--blue);width:0"></div></div></div>
-    <div class="scard"><div class="snum" id="sRed" style="color:var(--red)">0</div><div class="slbl">Weak 1–3</div><div class="scard-bar"><div class="scard-bar-fill" id="sRedB" style="background:var(--red);width:0"></div></div></div>
-    <div class="scard"><div class="snum" id="sOrg" style="color:var(--orange)">0</div><div class="slbl">Needs work 4–6</div><div class="scard-bar"><div class="scard-bar-fill" id="sOrgB" style="background:var(--orange);width:0"></div></div></div>
-    <div class="scard"><div class="snum" id="sGrn" style="color:var(--green)">0</div><div class="slbl">Good 7–8</div><div class="scard-bar"><div class="scard-bar-fill" id="sGrnB" style="background:var(--green);width:0"></div></div></div>
-    <div class="scard"><div class="snum" id="sTel" style="color:var(--teal)">0</div><div class="slbl">Mastered 9–10</div><div class="scard-bar"><div class="scard-bar-fill" id="sTelB" style="background:var(--teal);width:0"></div></div></div>
+  <div class="overview-tiles">
+    <div class="summary">
+      <div class="scard"><div class="snum" id="sAvg" style="color:var(--blue)">—</div><div class="slbl">Overall avg</div><div class="scard-bar"><div class="scard-bar-fill" id="sAvgB" style="background:var(--blue);width:0"></div></div></div>
+      <div class="scard"><div class="snum" id="sRed" style="color:var(--red)">0</div><div class="slbl">Weak 1–3</div><div class="scard-bar"><div class="scard-bar-fill" id="sRedB" style="background:var(--red);width:0"></div></div></div>
+      <div class="scard"><div class="snum" id="sOrg" style="color:var(--orange)">0</div><div class="slbl">Needs work 4–6</div><div class="scard-bar"><div class="scard-bar-fill" id="sOrgB" style="background:var(--orange);width:0"></div></div></div>
+      <div class="scard"><div class="snum" id="sGrn" style="color:var(--green)">0</div><div class="slbl">Good 7–8</div><div class="scard-bar"><div class="scard-bar-fill" id="sGrnB" style="background:var(--green);width:0"></div></div></div>
+      <div class="scard"><div class="snum" id="sTel" style="color:var(--teal)">0</div><div class="slbl">Mastered 9–10</div><div class="scard-bar"><div class="scard-bar-fill" id="sTelB" style="background:var(--teal);width:0"></div></div></div>
+    </div>
   </div>
   <div class="alert" id="abox">
     <div class="alert-inner">
@@ -1826,6 +1846,18 @@ const loadingMessages = [
 async function activateProfile(profile) {
   currentProfile = profile;
   
+  // Update profile indicator
+  const profileLabel = document.getElementById('currentProfileLabel');
+  if (profileLabel) {
+    profileLabel.textContent = profile === 'aj' ? 'AJ' : 'Guest';
+  }
+  
+  // Update title attribute
+  const profileBtn = document.getElementById('profileSwitchBtn');
+  if (profileBtn) {
+    profileBtn.title = `Current profile: ${profile === 'aj' ? 'AJ' : 'Guest'} - Click to switch`;
+  }
+  
   // Save profile choice
   try {
     localStorage.setItem('alrt_current_profile', profile);
@@ -1871,6 +1903,9 @@ async function activateProfile(profile) {
     startRealTimeSync();
   }
   
+  // Load design preference for this profile
+  loadDesignPreference();
+  
   // Initialize mobile/desktop specific features
   try{
     const isMobile = window.matchMedia('(max-width:720px)').matches || (navigator.maxTouchPoints||0) > 1;
@@ -1884,7 +1919,7 @@ async function activateProfile(profile) {
     }
   }catch(e){}
   
-  // Load API settings
+  // Load API settings for this profile
   if(typeof loadAPISettings === 'function') {
     loadAPISettings();
   }
@@ -1905,6 +1940,7 @@ function loadGuestData() {
   // Clear any existing data
   R = {};
   QS = {};
+  EX = {}; // Empty exams for guest
   
   // Add sample data so guests can see what it looks like
   // Just a few example ratings to show the interface
@@ -1994,8 +2030,14 @@ function switchProfile() {
 }
 
 // ══ MOBILE MENU ══════════════════════════════════════════════
-function toggleMobMenu() { document.getElementById('mobMenu').classList.toggle('on'); }
-function closeMobMenu() { document.getElementById('mobMenu').classList.remove('on'); }
+function toggleMobMenu() { 
+  document.getElementById('mobMenu').classList.toggle('on'); 
+  document.querySelector('.mob-menu-btn').classList.toggle('open');
+}
+function closeMobMenu() { 
+  document.getElementById('mobMenu').classList.remove('on'); 
+  document.querySelector('.mob-menu-btn').classList.remove('open');
+}
 
 // ══ LOADING FLOATERS ════════════════════════════════════════
 const FLOATER_WORDS = ['CONSISTENCY','FOCUS','HARD WORK','YOU GOT THIS','DISCIPLINE','KEEP GOING','PROGRESS','SHOW UP','EXCELLENCE','CHAMPION','DEEP WORK','LEVEL UP','GRIND','COMMIT','FOCUS MODE','STUDY HARD','BELIEVE','PUSH THROUGH','GRIT','NO SHORTCUTS'];
@@ -2156,16 +2198,20 @@ function syncDesignIcons(isClassic) {
 function toggleDesign() {
   const isClassic = document.body.classList.toggle('classic-theme');
   syncDesignIcons(isClassic);
-  try { localStorage.setItem('alrt_design', isClassic ? 'classic' : 'modern'); } catch(e) {}
+  // Save theme per profile
+  try { localStorage.setItem(`alrt_design_${currentProfile}`, isClassic ? 'classic' : 'modern'); } catch(e) {}
 }
 
-// Load saved design preference
+// Load saved design preference for current profile
 function loadDesignPreference() {
   try {
-    const savedDesign = localStorage.getItem('alrt_design');
+    const savedDesign = localStorage.getItem(`alrt_design_${currentProfile}`);
     if(savedDesign === 'classic') {
       document.body.classList.add('classic-theme');
       syncDesignIcons(true);
+    } else {
+      document.body.classList.remove('classic-theme');
+      syncDesignIcons(false);
     }
   } catch(e) {}
 }
@@ -2253,13 +2299,13 @@ function scheduleCloudSave(){
 
 function cloudPayload(){
   let savedChats=[];
-  try{savedChats=JSON.parse(localStorage.getItem('ai_saved_chats')||'[]');}catch(e){}
+  try{savedChats=JSON.parse(localStorage.getItem(`ai_saved_chats_${currentProfile}`)||'[]');}catch(e){}
   let groqKey='';
-  try{groqKey=localStorage.getItem('ai_key_groq')||localStorage.getItem('ai_api_key')||'';}catch(e){}
+  try{groqKey=localStorage.getItem(`ai_key_groq_${currentProfile}`)||localStorage.getItem(`ai_api_key_${currentProfile}`)||'';}catch(e){}
   let design='modern';
-  try{design=localStorage.getItem('alrt_design')||'modern';}catch(e){}
+  try{design=localStorage.getItem(`alrt_design_${currentProfile}`)||'modern';}catch(e){}
   let examPhotos={};
-  try{examPhotos=JSON.parse(localStorage.getItem('exam_photos')||'{}');}catch(e){}
+  try{examPhotos=JSON.parse(localStorage.getItem(`exam_photos_${currentProfile}`)||'{}');}catch(e){}
   
   // Sanitize R, QS, EX to remove circular references
   const sanitize = (obj) => {
@@ -4555,7 +4601,8 @@ let _pendingImageMime = 'image/png';
 const _HK = ['gsk_BAriHIcPRRYabSWuvSAnWGdyb3FYK2', 'tvY75TA52S4uxqGpoxcDwg'].join('');
 function loadAPISettings() {
   let saved = '';
-  try { saved = localStorage.getItem('ai_key_groq') || localStorage.getItem('ai_api_key') || ''; } catch(e) {}
+  // Load AI key per profile
+  try { saved = localStorage.getItem(`ai_key_groq_${currentProfile}`) || localStorage.getItem(`ai_api_key_${currentProfile}`) || ''; } catch(e) {}
   // Use saved key only if it looks valid, otherwise fall back to hardcoded
   _keys.groq = (saved && saved.startsWith('gsk_') && saved.length > 20) ? saved : _HK;
   _aiApiKey = _keys.groq;
@@ -4938,10 +4985,10 @@ function saveChat() {
   const name = document.getElementById('chatSaveName').value.trim();
   if(!name || _aiHistory.length === 0) return;
   
-  // Load existing chats
+  // Load existing chats for this profile
   let chats = [];
   try {
-    chats = JSON.parse(localStorage.getItem('ai_saved_chats') || '[]');
+    chats = JSON.parse(localStorage.getItem(`ai_saved_chats_${currentProfile}`) || '[]');
   } catch(e) {}
   
   // Create new chat
@@ -4956,9 +5003,9 @@ function saveChat() {
   
   chats.unshift(chat);
   
-  // Save
+  // Save for this profile
   try {
-    localStorage.setItem('ai_saved_chats', JSON.stringify(chats));
+    localStorage.setItem(`ai_saved_chats_${currentProfile}`, JSON.stringify(chats));
   } catch(e) {
     alert('Failed to save chat: storage full');
   }
@@ -4981,7 +5028,7 @@ function discardChat() {
 function openSavedChats() {
   let chats = [];
   try {
-    chats = JSON.parse(localStorage.getItem('ai_saved_chats') || '[]');
+    chats = JSON.parse(localStorage.getItem(`ai_saved_chats_${currentProfile}`) || '[]');
   } catch(e) {}
   
   const body = document.getElementById('savedChatsBody');
@@ -5247,13 +5294,15 @@ loadAPISettings();
 let lastScrollY = 0;
 let ticking = false;
 let scrollThreshold = 50;
+let tilesHidden = false;
 
 function updateMobileHeader() {
-  if (window.innerWidth > 720) return; // Desktop only
+  if (window.innerWidth > 720) return; // Mobile only
   
   const currentScrollY = window.scrollY;
   const header = document.querySelector('.header');
   const overviewTiles = document.querySelector('.overview-tiles');
+  const grid = document.querySelector('.grid');
   
   if (!header) return;
   
@@ -5262,15 +5311,33 @@ function updateMobileHeader() {
     // Scrolling down
     header.classList.add('header-hidden');
     header.classList.remove('header-show');
-    if (overviewTiles) {
+    
+    // Hide tiles when scrolling down past 150px
+    if (overviewTiles && currentScrollY > 150 && !tilesHidden) {
       overviewTiles.classList.add('tiles-hidden');
+      tilesHidden = true;
+      
+      // Zoom in grid
+      if (grid) {
+        grid.style.transform = 'scale(1.1)';
+        grid.style.transformOrigin = 'top center';
+        grid.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      }
     }
   } else {
     // Scrolling up
     header.classList.remove('header-hidden');
     header.classList.add('header-show');
+    
+    // Show tiles when scrolling back up
     if (overviewTiles && currentScrollY < 100) {
       overviewTiles.classList.remove('tiles-hidden');
+      tilesHidden = false;
+      
+      // Reset grid zoom
+      if (grid) {
+        grid.style.transform = 'scale(1)';
+      }
     }
   }
   
