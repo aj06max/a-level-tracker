@@ -5360,10 +5360,15 @@ if (window.innerWidth <= 720) {
 function showSubjectPopup(subject) {
   if (window.innerWidth > 720) return; // Only on mobile
   
+  console.log('showSubjectPopup called for:', subject);
+  
   const popup = document.getElementById('subjectPopup');
   const optionsContainer = document.getElementById('subjectPopupOptions');
   
-  if (!popup || !optionsContainer) return;
+  if (!popup || !optionsContainer) {
+    console.error('Popup elements not found! popup:', popup, 'container:', optionsContainer);
+    return;
+  }
   
   // Define subtabs for each subject (matching actual IDs from the code)
   const subtabs = {
@@ -5383,6 +5388,8 @@ function showSubjectPopup(subject) {
   
   const options = subtabs[subject] || [];
   
+  console.log('Found', options.length, 'options for', subject);
+  
   optionsContainer.innerHTML = options.map(opt => `
     <div class="subject-option" onclick="selectSubject('${subject}', '${opt.id}')">
       <span>${opt.icon} ${opt.label}</span>
@@ -5392,22 +5399,31 @@ function showSubjectPopup(subject) {
   
   popup.classList.add('on');
   document.body.style.overflow = 'hidden';
+  
+  console.log('Popup should now be visible');
 }
 
 function selectSubject(subject, subtabId) {
+  console.log('Selected:', subject, subtabId);
   closeSubjectPopup();
   
   // Temporarily bypass the popup for this selection
   window._bypassMobilePopup = true;
   
-  // First switch to the main tab
-  if (typeof switchTab === 'function') {
-    switchTab(subject);
+  // First switch to the main subject
+  if (typeof switchSubject === 'function') {
+    switchSubject(subject === 'maths' ? 'maths' : 'fm');
+  } else {
+    console.error('switchSubject function not found');
   }
+  
   // Then switch to the specific subtab after a brief delay
   setTimeout(() => {
     if (typeof switchSubTab === 'function') {
       switchSubTab(subtabId);
+      console.log('Switched to subtab:', subtabId);
+    } else {
+      console.error('switchSubTab function not found');
     }
     // Re-enable popup after subtab is selected
     setTimeout(() => {
@@ -5569,17 +5585,22 @@ document.addEventListener('click', function(e) {
   }
 }, true);
 
-// Mobile: Intercept main tab clicks to show popup for maths/further
-const originalSwitchTab = window.switchTab;
-if (typeof originalSwitchTab === 'function') {
-  window.switchTab = function(tabName) {
+// Mobile: Intercept main subject clicks to show popup for maths/further
+const originalSwitchSubject = window.switchSubject;
+if (typeof originalSwitchSubject === 'function') {
+  window.switchSubject = function(subject) {
+    console.log('switchSubject called:', subject, 'bypass:', window._bypassMobilePopup);
+    
     // Only show popup if we're on mobile, it's maths/further, and not bypassing
-    if (window.innerWidth <= 720 && (tabName === 'maths' || tabName === 'further') && !window._bypassMobilePopup) {
-      showSubjectPopup(tabName);
+    if (window.innerWidth <= 720 && (subject === 'maths' || subject === 'fm') && !window._bypassMobilePopup) {
+      showSubjectPopup(subject === 'maths' ? 'maths' : 'further');
       return;
     }
-    originalSwitchTab(tabName);
+    originalSwitchSubject(subject);
   };
+  console.log('Mobile switchSubject override installed');
+} else {
+  console.error('switchSubject function not found!');
 }
 
 // Mobile: Add swipe-down to close AI panel
@@ -5644,6 +5665,9 @@ if (typeof originalRender === 'function') {
     }
   };
 }
+
+// Debug: Log when mobile optimizations are loaded
+console.log('Mobile optimizations loaded. Width:', window.innerWidth, 'isMobile:', window.innerWidth <= 720);
 
 </script>
 
