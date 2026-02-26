@@ -1795,19 +1795,35 @@ const GITHUB_OWNER = 'aj06max'; // Your GitHub username
 const GITHUB_REPO = 'a-level-tracker'; // Your repo name  
 const GITHUB_FILE = 'data.json'; // File to store data in
 const GITHUB_BRANCH = 'main'; // Branch name
+const GITHUB_TOKEN_KEY = 'github_token';
+
+function clearGitHubToken(){
+  try{localStorage.removeItem(GITHUB_TOKEN_KEY);}catch(e){}
+}
 
 // Get GitHub token from localStorage or prompt user
 function getGitHubToken() {
-  function getGitHubToken() {
-     return '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'; // Paste your actual token here
-   }
+  let token = '';
+  try {
+    token = (localStorage.getItem(GITHUB_TOKEN_KEY) || '').trim();
+  } catch (e) {}
+
   if (!token && currentProfile === 'aj') {
-    token = prompt('Enter your GitHub Personal Access Token:\n\nGo to github.com/settings/tokens\nGenerate new token (classic)\nEnable "repo" permission\nCopy and paste here:');
+    const entered = prompt('Enter your GitHub Personal Access Token\n\nGo to github.com/settings/tokens\nGenerate new token (classic)\nEnable "repo" permission\nCopy and paste here:');
+    token = (entered || '').trim();
     if (token) {
-      localStorage.setItem('github_token', token);
+      try { localStorage.setItem(GITHUB_TOKEN_KEY, token); } catch (e) {}
     }
   }
+
   return token;
+}
+
+function decodeGitHubContent(content){
+  const base64 = (content || '').replace(/\n/g,'');
+  const bytes = atob(base64);
+  const arr = Uint8Array.from(bytes, c => c.charCodeAt(0));
+  return new TextDecoder().decode(arr);
 }
 
 let _cloudTimer=null;
@@ -1911,11 +1927,19 @@ async function cloudSaveNow(){
       })
     });
     
-    if(!putRes.ok) throw new Error('HTTP '+putRes.status);
+    if(!putRes.ok){
+      if(putRes.status===401||putRes.status===403){
+        clearGitHubToken();
+        setSync('off','Auth failed');
+      }
+      throw new Error('HTTP '+putRes.status);
+    }
     setSync('ok','Synced');
   }catch(e){
     console.error('Cloud save failed:',e);
-    setSync('off','Offline');
+    if(!String(e&&e.message||'').includes('HTTP 401')&&!String(e&&e.message||'').includes('HTTP 403')){
+      setSync('off','Offline');
+    }
   }finally{
     _cloudInFlight=false;
     if(_cloudDirty){_cloudDirty=false;scheduleCloudSave();}
@@ -1927,13 +1951,24 @@ async function cloudLoad(){
   if (!token) return null;
   
   try{
-    // Use raw.githubusercontent.com for faster, cacheable reads
-    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE}`;
-    const res = await fetch(rawUrl, {
-      cache: 'no-cache' // Always get latest
+    const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}?ref=${GITHUB_BRANCH}`;
+    const res = await fetch(getUrl, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      cache: 'no-cache'
     });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    return await res.json();
+    if(!res.ok){
+      if(res.status===401||res.status===403){
+        clearGitHubToken();
+      }
+      throw new Error('HTTP '+res.status);
+    }
+    const payload = await res.json();
+    if(!payload || !payload.content) return null;
+    const json = decodeGitHubContent(payload.content);
+    return JSON.parse(json);
   }catch(e){
     console.log('Cloud load failed (file may not exist yet):', e);
     return null;
