@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772125592816
+    "updatedAt": 1772125713868
   },
   "R": {
     "maths_py1_m1_0": 9,
@@ -254,7 +254,8 @@
     "maths_sm2_v8_2": 7,
     "maths_sm2_v8_3": 7,
     "maths_sm2_v8_4": 7,
-    "alrt_maths_py1_m1_0": 6
+    "alrt_maths_py1_m1_0": 6,
+    "alrt_maths_sm2_t1_0": 1
   },
   "QS": {
     "alrtq_maths_py1_m1": [
