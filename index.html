@@ -1865,12 +1865,23 @@ function cloudPayload(){
   try{groqKey=localStorage.getItem('ai_key_groq')||localStorage.getItem('ai_api_key')||'';}catch(e){}
   let design='modern';
   try{design=localStorage.getItem('alrt_design')||'modern';}catch(e){}
+  
+  // Sanitize R, QS, EX to remove circular references
+  const sanitize = (obj) => {
+    try {
+      return JSON.parse(JSON.stringify(obj));
+    } catch (e) {
+      console.warn('Failed to sanitize object:', obj);
+      return {};
+    }
+  };
+  
   return {
     meta:{v:4,updatedAt:localGetTs()},
-    R,
-    QS,
-    EX,
-    aiHistory: typeof _aiHistory!=='undefined' ? _aiHistory : [],
+    R: sanitize(R),
+    QS: sanitize(QS),
+    EX: sanitize(EX),
+    aiHistory: typeof _aiHistory!=='undefined' ? sanitize(_aiHistory) : [],
     savedChats,
     groqKey,
     design
