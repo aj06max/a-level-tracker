@@ -36,6 +36,26 @@ body.classic-theme{font-family:'Inter',sans-serif}
 body.classic-theme .snum,body.classic-theme .sw-time,body.classic-theme .alert-rank,
 body.classic-theme .alert-score,body.classic-theme .bval,body.classic-theme .syncpill{font-family:'Inter',sans-serif}
 
+/* ── PINK THEME (secret unlock) ── */
+body.pink-theme{
+  --bg:#1a0d1a;--white:#2d1a2d;--border:#4d2d4d;--text:#ffeef9;--muted:#d4a5c9;
+  --light:#3d2a3d;--light2:#2d1a2d;
+  --red:#ff6b9d;--orange:#ff85d4;--green:#b794f6;--blue:#ff85d4;--teal:#e879f9;
+  --redbg:#2d1a25;--bluebg:#2d1a2d;
+  --surface:#251825;--surface2:#2d1a2d;--accent:#ff85d4;--accent2:#ffa3e3;
+}
+body.pink-theme .header{background:rgba(26,13,26,0.95)}
+body.pink-theme .logo-dot{box-shadow:0 0 12px #ff85d4}
+body.pink-theme .tab.on{box-shadow:0 2px 8px rgba(255,133,212,.3)}
+body.pink-theme .scard:hover{border-color:#ff85d4}
+body.pink-theme .alert.on{border-color:#ff6b9d;background:#2d1a25}
+body.pink-theme .syncpill.ok{border-color:rgba(183,148,246,.4);background:rgba(183,148,246,.12)}
+body.pink-theme .syncpill.sync{border-color:rgba(255,133,212,.4);background:rgba(255,133,212,.12)}
+body.pink-theme .syncpill.off{border-color:rgba(255,107,157,.4);background:rgba(255,107,157,.12)}
+body.pink-theme #profileScreen::after{background-image:linear-gradient(rgba(255,133,212,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,133,212,.03) 1px,transparent 1px)}
+body.pink-theme .profile-floater{color:rgba(255,133,212,.15)}
+body.pink-theme .floater{color:rgba(255,133,212,.18)}
+
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
 
 /* ═══ PROFILE SELECTION SCREEN ═══════════════════════════════ */
@@ -43,6 +63,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 #profileScreen.hidden{opacity:0;pointer-events:none}
 #profileScreen::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,107,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;animation:gridDrift 30s linear infinite}
 @keyframes gridDrift{0%{transform:translate(0,0)}100%{transform:translate(44px,44px)}}
+
+/* Profile floaters */
+.profile-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.profile-floater{position:absolute;font-size:11px;font-weight:600;font-family:var(--mono);color:rgba(255,107,0,.15);letter-spacing:1px;animation:floatWord linear infinite;white-space:nowrap;user-select:none;text-transform:uppercase}
+
 .profile-topbar{position:fixed;top:16px;right:20px;z-index:10002;display:flex;align-items:center;gap:8px}
 .profile-topbar .design-toggle{background:var(--surface);border-color:var(--border)}
 .profile-container{max-width:620px;width:90%;text-align:center;position:relative;z-index:1}
@@ -383,57 +408,154 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     right: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    max-height: 70vh !important;
-    border-radius: 20px 20px 0 0 !important;
-    border-bottom: none !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
     transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
   }
   
   #aiPanel.on {
     transform: translateY(0);
   }
   
+  .ai-head {
+    padding: 16px 16px 12px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  
   .ai-hdr {
-    padding: 20px 16px 12px;
-    cursor: grab;
-    position: relative;
+    padding: 0;
+    border: none;
+    cursor: default;
   }
   
-  .ai-hdr:active {
-    cursor: grabbing;
-  }
-  
-  /* Add a drag handle indicator */
   .ai-hdr::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
+    display: none;
   }
   
   .ai-msgs {
-    max-height: calc(70vh - 200px) !important;
-    padding-bottom: 80px;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    max-height: none !important;
+    min-height: 0;
   }
   
-  .ai-bottom {
+  .ai-msg {
+    margin-bottom: 12px;
+  }
+  
+  /* Modern message bubbles */
+  .ai-msg.ai .ai-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 18px 18px 18px 4px;
+    padding: 12px 16px;
+    max-width: 80%;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  
+  .ai-msg.user .ai-bubble {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    padding: 12px 16px;
+    max-width: 80%;
+    font-size: 15px;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(255,107,0,0.2);
+  }
+  
+  /* Input area */
+  .ai-input-row {
     padding: 12px 16px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
   }
   
-  #aiInput {
+  .ai-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    padding: 12px 18px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 16px !important;
+    color: var(--text);
+    outline: none;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+    transition: border-color .2s;
+    line-height: 1.4;
+  }
+  
+  .ai-input:focus {
+    border-color: var(--accent);
+  }
+  
+  .ai-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(255,107,0,0.3);
+  }
+  
+  .ai-send:active {
+    transform: scale(0.95);
+  }
+  
+  .ai-send:disabled {
+    background: var(--light);
+    color: var(--muted);
+    box-shadow: none;
+  }
+  
+  /* Chips */
+  .ai-chips {
+    padding: 0 16px 12px;
+    gap: 8px;
+  }
+  
+  .ai-chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-size: 14px;
+    font-weight: 500;
   }
   
   #aiResizeHandle {
     display: none;
+  }
+  
+  /* Avatar */
+  .ai-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+  }
+  
+  .ai-msg.user .ai-avatar {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
   }
 
   /* Mobile AI toggle button */
@@ -505,6 +627,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 @media(min-width:721px){
   .header-mob-tabs{display:none !important}
   .tabs{order:10}
+  /* Hide mobile popups on desktop */
+  .subject-popup, .topic-modal{display:none !important}
 }
 .logo{display:flex;align-items:center;gap:10px}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
@@ -1260,7 +1384,8 @@ svg.ring{overflow:visible;flex-shrink:0}
 .mob-menu-btn.open span:nth-child(3){transform:rotate(-45deg) translateY(-5px) translateX(5px)}
 @media(max-width:720px){
   .mob-menu-btn{display:flex}
-  .hright .design-toggle,.hright label.design-toggle,.hright .syncpill,.hright .stopwatch,.switch-profile-btn{display:none !important}
+  .hright .design-toggle,.hright label.design-toggle,.hright .stopwatch,.switch-profile-btn{display:none !important}
+  .hright .syncpill{display:flex !important}
   .hright .tabs{display:none !important}
   .header-mob-tabs{display:flex !important}
   .ai-btn{display:none !important}
@@ -1270,9 +1395,9 @@ svg.ring{overflow:visible;flex-shrink:0}
 /* Mobile menu overlay + drawer */
 #mobMenu{position:fixed;inset:0;z-index:300;display:none;pointer-events:none}
 #mobMenu.on{display:block}
-#mobMenuOverlay{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s;pointer-events:none}
+#mobMenuOverlay{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);opacity:0;transition:opacity .35s cubic-bezier(0.4, 0, 0.2, 1);pointer-events:none}
 #mobMenu.on #mobMenuOverlay{opacity:1;pointer-events:auto}
-#mobMenuDrawer{position:absolute;top:0;right:0;bottom:0;width:272px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.9,.2,1);pointer-events:none;box-shadow:-20px 0 60px rgba(0,0,0,.45)}
+#mobMenuDrawer{position:absolute;top:0;right:0;bottom:0;width:272px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(0.34, 1, 0.64, 1);pointer-events:none;box-shadow:-20px 0 60px rgba(0,0,0,.45)}
 #mobMenu.on #mobMenuDrawer{transform:translateX(0);pointer-events:auto}
 .mob-drawer-head{padding:20px 18px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 20px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
 .mob-drawer-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--mono)}
@@ -1336,8 +1461,11 @@ window.MathJax = {
 
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
+  <div class="profile-floaters" id="profileFloaters">
+    <!-- Floating words will be added by JavaScript -->
+  </div>
   <div class="profile-topbar">
-    <div class="design-toggle" onclick="toggleDesign()" title="Switch theme">
+    <div class="design-toggle" onclick="toggleDesign()" id="themeToggleBtn" title="Switch theme">
       <span class="design-toggle-icon" id="designIconProfile">🌙</span>
       <span class="design-toggle-label" id="designLabelProfile">DARK</span>
     </div>
@@ -2041,14 +2169,14 @@ function closeMobMenu() {
 
 // ══ LOADING FLOATERS ════════════════════════════════════════
 const FLOATER_WORDS = ['CONSISTENCY','FOCUS','HARD WORK','YOU GOT THIS','DISCIPLINE','KEEP GOING','PROGRESS','SHOW UP','EXCELLENCE','CHAMPION','DEEP WORK','LEVEL UP','GRIND','COMMIT','FOCUS MODE','STUDY HARD','BELIEVE','PUSH THROUGH','GRIT','NO SHORTCUTS'];
-function spawnFloaters() {
-  const c = document.getElementById('loadingFloaters');
+function spawnFloaters(targetId = 'loadingFloaters') {
+  const c = document.getElementById(targetId);
   if(!c) return;
   c.innerHTML = '';
   const words = [...FLOATER_WORDS].sort(() => .5-Math.random()).slice(0,16);
   words.forEach(w => {
     const el = document.createElement('div');
-    el.className = 'floater';
+    el.className = targetId === 'loadingFloaters' ? 'floater' : 'profile-floater';
     el.textContent = w;
     el.style.left = (Math.random()*88)+'%';
     el.style.bottom = (Math.random()*70)+'%';
@@ -2058,6 +2186,24 @@ function spawnFloaters() {
     c.appendChild(el);
   });
 }
+
+// Spawn profile floaters on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const profileFloaters = document.querySelector('.profile-floaters');
+  if (profileFloaters) {
+    spawnFloaters('profileFloaters');
+    // Re-spawn every 30 seconds for variety
+    setInterval(() => {
+      if (!document.getElementById('profileScreen').classList.contains('hidden')) {
+        const container = document.querySelector('.profile-floaters');
+        if (container) {
+          container.id = 'profileFloaters';
+          spawnFloaters('profileFloaters');
+        }
+      }
+    }, 30000);
+  }
+});
 
 // ══ IMAGE OPTIMIZATION ═══════════════════════════════════════
 // Compress images before storing to reduce bandwidth and localStorage usage
@@ -2178,7 +2324,22 @@ function cleanOldImages() {
 }
 
 // ══ DESIGN TOGGLE ═════════════════════════════════════════════
-function syncDesignIcons(isClassic) {
+let themeClickCount = 0;
+let themeClickTimer = null;
+
+function syncDesignIcons(theme) {
+  // theme can be: 'modern', 'classic', or 'pink'
+  const icons = {
+    modern: '🌙',
+    classic: '☀️',
+    pink: '💖'
+  };
+  const labels = {
+    modern: 'DARK',
+    classic: 'LIGHT',
+    pink: 'PINK'
+  };
+  
   const sets = [
     ['designIcon','designLabel'],
     ['designIconProfile','designLabelProfile'],
@@ -2186,20 +2347,66 @@ function syncDesignIcons(isClassic) {
   sets.forEach(([iconId, labelId]) => {
     const ic = document.getElementById(iconId);
     const lb = document.getElementById(labelId);
-    if(ic) ic.textContent = isClassic ? '☀️' : '🌙';
-    if(lb) lb.textContent = isClassic ? 'LIGHT' : 'DARK';
+    if(ic) ic.textContent = icons[theme] || '🌙';
+    if(lb) lb.textContent = labels[theme] || 'DARK';
   });
   const mIcon = document.getElementById('mobMenuThemeIcon');
   const mLabel = document.getElementById('mobMenuThemeLabel');
-  if(mIcon) mIcon.textContent = isClassic ? '☀️' : '🌙';
-  if(mLabel) mLabel.textContent = isClassic ? 'Light Mode' : 'Dark Mode';
+  if(mIcon) mIcon.textContent = icons[theme] || '🌙';
+  if(mLabel) mLabel.textContent = (labels[theme] || 'Dark') + ' Mode';
 }
 
 function toggleDesign() {
-  const isClassic = document.body.classList.toggle('classic-theme');
-  syncDesignIcons(isClassic);
-  // Save theme per profile
-  try { localStorage.setItem(`alrt_design_${currentProfile}`, isClassic ? 'classic' : 'modern'); } catch(e) {}
+  // Track clicks for secret unlock
+  themeClickCount++;
+  clearTimeout(themeClickTimer);
+  themeClickTimer = setTimeout(() => {
+    themeClickCount = 0;
+  }, 2000); // Reset after 2 seconds
+  
+  // Secret: 10 fast clicks unlocks pink theme
+  if (themeClickCount === 10) {
+    document.body.classList.remove('classic-theme');
+    document.body.classList.add('pink-theme');
+    syncDesignIcons('pink');
+    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'pink'); } catch(e) {}
+    
+    // Show celebration message
+    const celebration = document.createElement('div');
+    celebration.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border:2px solid var(--accent);border-radius:20px;padding:32px 40px;z-index:100000;text-align:center;animation:scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 60px rgba(0,0,0,0.5)';
+    celebration.innerHTML = '<div style="font-size:48px;margin-bottom:12px">✨💖✨</div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">Pink Theme Unlocked!</div><div style="font-size:12px;color:var(--muted)">You found the secret theme 🎉</div>';
+    document.body.appendChild(celebration);
+    setTimeout(() => {
+      celebration.style.opacity = '0';
+      celebration.style.transform = 'translate(-50%,-50%) scale(0.9)';
+      celebration.style.transition = 'all 0.3s';
+      setTimeout(() => celebration.remove(), 300);
+    }, 2500);
+    
+    themeClickCount = 0;
+    return;
+  }
+  
+  // Normal theme cycling
+  const isPink = document.body.classList.contains('pink-theme');
+  const isClassic = document.body.classList.contains('classic-theme');
+  
+  if (isPink) {
+    // Pink -> Modern
+    document.body.classList.remove('pink-theme');
+    syncDesignIcons('modern');
+    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
+  } else if (isClassic) {
+    // Classic -> Modern
+    document.body.classList.remove('classic-theme');
+    syncDesignIcons('modern');
+    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'modern'); } catch(e) {}
+  } else {
+    // Modern -> Classic
+    document.body.classList.add('classic-theme');
+    syncDesignIcons('classic');
+    try { localStorage.setItem(`alrt_design_${currentProfile}`, 'classic'); } catch(e) {}
+  }
 }
 
 // Load saved design preference for current profile
@@ -2208,10 +2415,13 @@ function loadDesignPreference() {
     const savedDesign = localStorage.getItem(`alrt_design_${currentProfile}`);
     if(savedDesign === 'classic') {
       document.body.classList.add('classic-theme');
-      syncDesignIcons(true);
+      syncDesignIcons('classic');
+    } else if(savedDesign === 'pink') {
+      document.body.classList.add('pink-theme');
+      syncDesignIcons('pink');
     } else {
-      document.body.classList.remove('classic-theme');
-      syncDesignIcons(false);
+      document.body.classList.remove('classic-theme', 'pink-theme');
+      syncDesignIcons('modern');
     }
   } catch(e) {}
 }
@@ -5672,8 +5882,8 @@ console.log('Mobile optimizations loaded. Width:', window.innerWidth, 'isMobile:
 </script>
 
 <!-- Mobile Subject Selection Popup -->
-<div id="subjectPopup" class="subject-popup">
-  <div class="subject-popup-content">
+<div id="subjectPopup" class="subject-popup" onclick="closeSubjectPopup()">
+  <div class="subject-popup-content" onclick="event.stopPropagation()">
     <div class="subject-popup-close" onclick="closeSubjectPopup()">×</div>
     <div class="subject-popup-title">Select Topic Area</div>
     <div class="subject-popup-subtitle">Choose a subject to view</div>
@@ -5684,8 +5894,8 @@ console.log('Mobile optimizations loaded. Width:', window.innerWidth, 'isMobile:
 </div>
 
 <!-- Mobile Topic Modal (Full Screen) -->
-<div id="topicModal" class="topic-modal">
-  <div class="topic-modal-content">
+<div id="topicModal" class="topic-modal" onclick="closeTopicModal()">
+  <div class="topic-modal-content" onclick="event.stopPropagation()">
     <div class="topic-modal-header">
       <div class="topic-modal-title" id="topicModalTitle">Topic</div>
       <div class="topic-modal-close" onclick="closeTopicModal()">×</div>
