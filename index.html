@@ -2082,7 +2082,7 @@ function save(){
     localTouchTs(); // Update timestamp
     scheduleCloudSave();
   }
-}
+  
 function load(){
   try{const d=localStorage.getItem('alrt_R');if(d)Object.assign(R,JSON.parse(d))}catch(e){}
   try{const d=localStorage.getItem('alrt_QS');if(d)Object.assign(QS,JSON.parse(d))}catch(e){}
