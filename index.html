@@ -1874,6 +1874,8 @@ function cloudPayload(){
   try{groqKey=localStorage.getItem('ai_key_groq')||localStorage.getItem('ai_api_key')||'';}catch(e){}
   let design='modern';
   try{design=localStorage.getItem('alrt_design')||'modern';}catch(e){}
+  let examPhotos={};
+  try{examPhotos=JSON.parse(localStorage.getItem('exam_photos')||'{}');}catch(e){}
   
   // Sanitize R, QS, EX to remove circular references
   const sanitize = (obj) => {
@@ -1893,7 +1895,8 @@ function cloudPayload(){
     aiHistory: typeof _aiHistory!=='undefined' ? sanitize(_aiHistory) : [],
     savedChats,
     groqKey,
-    design
+    design,
+    examPhotos: sanitize(examPhotos)
   };
 }
 
@@ -2017,6 +2020,9 @@ async function cloudPull(silent=false){
       }
       if(remote.groqKey&&remote.groqKey.startsWith('gsk_')&&remote.groqKey.length>20){
         try{localStorage.setItem('ai_key_groq',remote.groqKey);localStorage.setItem('ai_api_key',remote.groqKey);}catch(e){}
+      }
+            if(remote.examPhotos){
+        try{localStorage.setItem('exam_photos',JSON.stringify(remote.examPhotos));}catch(e){}
       }
       if(remote.design){
         try{localStorage.setItem('alrt_design',remote.design);}catch(e){}
