@@ -920,6 +920,35 @@ svg.ring{overflow:visible;flex-shrink:0}
 .switch-profile-btn{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 12px;cursor:pointer;user-select:none;transition:all .2s;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted)}
 .switch-profile-btn:hover{border-color:var(--accent);color:var(--accent)}
 
+  
+/* ===== FIX: Dark mode highlight text unreadable ===== */
+body:not(.classic-theme) .srow[style],
+body:not(.classic-theme) .srow.highlight,
+body:not(.classic-theme) .ccard.highlight {
+
+  /* darker transparent highlight instead of washed out grey */
+  background: rgba(255,107,0,0.14) !important;
+
+  /* ensure readable text */
+  color: var(--text) !important;
+}
+
+/* force topic name to stay readable */
+body:not(.classic-theme) .srow[style] .sname,
+body:not(.classic-theme) .srow.highlight .sname {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+/* force numbers and other text readable */
+body:not(.classic-theme) .srow[style] .pill,
+body:not(.classic-theme) .srow[style] span,
+body:not(.classic-theme) .srow.highlight .pill,
+body:not(.classic-theme) .srow.highlight span {
+  color: var(--text) !important;
+}
+
+  
 </style>
 <script>
 window.MathJax = {
