@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772130023987
+    "updatedAt": 1772130319961
   },
   "R": {
     "r_maths_py1_m1_0": 7,
@@ -11,7 +11,37 @@
     "alrt_maths_py1_m1_0": 1
   },
   "QS": {},
-  "EX": {},
+  "EX": {
+    "ex_1772130319961": {
+      "id": "ex_1772130319961",
+      "name": "Hai",
+      "type": "cp1",
+      "total": null,
+      "qs": [
+        {
+          "q": "31",
+          "part": "g",
+          "sub": "—",
+          "label": "Q31g",
+          "attempts": [
+            {
+              "got": 5,
+              "of": 5,
+              "date": "26/02/2026"
+            }
+          ]
+        }
+      ],
+      "date": "26/02/2026",
+      "overall": [
+        {
+          "got": 5,
+          "of": 68,
+          "date": "26/02/2026"
+        }
+      ]
+    }
+  },
   "aiHistory": [],
   "savedChats": [],
   "groqKey": "",
