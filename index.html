@@ -1317,6 +1317,28 @@ window.MathJax = {
 </head>
 <body>
 
+<!-- Mobile Debug Logger (temporary) -->
+<div id="mobileDebugLog" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:10px;max-height:200px;overflow-y:auto;z-index:99999;padding:8px;display:none;border-top:2px solid #0f0"></div>
+<script>
+if (window.innerWidth <= 720) {
+  const debugLog = document.getElementById('mobileDebugLog');
+  debugLog.style.display = 'block';
+  const originalConsoleLog = console.log;
+  console.log = function(...args) {
+    originalConsoleLog.apply(console, args);
+    const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    const line = document.createElement('div');
+    line.textContent = new Date().toLocaleTimeString() + ' ' + msg;
+    debugLog.appendChild(line);
+    debugLog.scrollTop = debugLog.scrollHeight;
+    // Keep only last 20 lines
+    while (debugLog.children.length > 20) {
+      debugLog.removeChild(debugLog.firstChild);
+    }
+  };
+}
+</script>
+
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
   <div class="profile-floaters" id="profileFloaters">
@@ -2386,10 +2408,12 @@ function localGetTs(){
 }
 
 function scheduleCloudSave(){
+  console.log('📅 scheduleCloudSave called');
   setSync('sync','Syncing');
   localTouchTs();
   if(_cloudTimer) clearTimeout(_cloudTimer);
   _cloudTimer=setTimeout(cloudSaveNow, 900);
+  console.log('📅 Cloud save scheduled for 900ms from now');
 }
 
 function cloudPayload(){
@@ -2608,20 +2632,43 @@ document.addEventListener('visibilitychange', () => {
 
 
 function save(){
+  console.log('🔴 SAVE CALLED');
+  console.log('  Current profile:', currentProfile);
+  console.log('  Window width:', window.innerWidth);
+  
   // Only save to localStorage if not guest mode
   if(currentProfile !== 'guest') {
-    try{localStorage.setItem('alrt_R',JSON.stringify(R));localStorage.setItem('alrt_QS',JSON.stringify(QS))}catch(e){}
-    try{localStorage.setItem('alrt_EX',JSON.stringify(EX));}catch(e){}
+    console.log('  ✅ Saving to localStorage (not guest)');
+    try{
+      localStorage.setItem('alrt_R',JSON.stringify(R));
+      localStorage.setItem('alrt_QS',JSON.stringify(QS));
+      console.log('  ✅ R and QS saved');
+    }catch(e){
+      console.error('  ❌ Failed to save R/QS:', e);
+    }
+    try{
+      localStorage.setItem('alrt_EX',JSON.stringify(EX));
+      console.log('  ✅ EX saved');
+    }catch(e){
+      console.error('  ❌ Failed to save EX:', e);
+    }
     
     // Auto-backup after each save
+    console.log('  🔄 Running auto-backup...');
     autoBackup();
+  } else {
+    console.log('  ⏭️ Skipping localStorage save (guest mode)');
   }
   
   // Only trigger cloud sync for AJ profile
   if(currentProfile === 'aj') {
+    console.log('  ☁️ Triggering cloud sync (AJ profile)');
     localTouchTs();
     scheduleCloudSave();
+  } else {
+    console.log('  ⏭️ Skipping cloud sync (not AJ profile)');
   }
+  console.log('🔴 SAVE COMPLETE');
 }
   
 function load(){
