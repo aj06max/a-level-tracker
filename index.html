@@ -1316,15 +1316,6 @@ window.MathJax = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js" async></script>
 </head>
 <body>
-<!-- Mobile Debug Console (mobile only) -->
-<script>
-if (window.innerWidth <= 720) {
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/eruda';
-  script.onload = () => eruda.init();
-  document.head.appendChild(script);
-}
-</script>
 
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
@@ -1471,11 +1462,6 @@ if (window.innerWidth <= 720) {
         <div><div class="mob-menu-label">Import Data</div><div class="mob-menu-sub">Restore backup</div></div>
         <input type="file" accept=".json" onchange="closeMobMenu();importAllData(this)" style="display:none">
       </label>
-      <div class="mob-menu-sep"></div>
-      <button class="mob-menu-item" onclick="closeMobMenu();if(window.eruda)eruda.show();else alert('Console not loaded')">
-        <div class="mob-menu-icon">🐛</div>
-        <div><div class="mob-menu-label">Debug Console</div><div class="mob-menu-sub">View logs</div></div>
-      </button>
       <div class="mob-menu-sep"></div>
       <button class="mob-menu-item danger" onclick="closeMobMenu();switchProfile()">
         <div class="mob-menu-icon">⇄</div>
@@ -5593,30 +5579,30 @@ function selectSubject(subject, subtabId) {
   
   // Temporarily bypass the popup for this selection
   window._bypassMobilePopup = true;
-  console.log('Bypass flag set to TRUE');
   
-  // First switch to the main subject
+  // Hide page content to prevent flash
+  const page = document.querySelector('.page');
+  if (page) page.style.opacity = '0';
+  
+  // Switch to the main subject first
   if (typeof switchSubject === 'function') {
     switchSubject(subject === 'maths' ? 'maths' : 'fm');
-  } else {
-    console.error('switchSubject function not found');
   }
   
-  // Then switch to the specific subtab after a brief delay
-  setTimeout(() => {
-    if (typeof switchSubTab === 'function') {
-      switchSubTab(subtabId);
-      console.log('Switched to subtab:', subtabId);
-    } else {
-      console.error('switchSubTab function not found');
-    }
-  }, 100);
+  // Immediately switch to the specific subtab (no delay)
+  if (typeof switchSubTab === 'function') {
+    switchSubTab(subtabId);
+  }
   
-  // IMPORTANT: Reset bypass flag - use longer delay to ensure everything completes
+  // Show page content after switching
+  requestAnimationFrame(() => {
+    if (page) page.style.opacity = '1';
+  });
+  
+  // Reset bypass flag
   setTimeout(() => {
     window._bypassMobilePopup = false;
-    console.log('Bypass flag reset to FALSE - popup will work again');
-  }, 500);
+  }, 300);
 }
 
 function closeSubjectPopup() {
@@ -5633,77 +5619,14 @@ let currentTopicData = null;
 function showTopicModal(subjectKey, topicKey) {
   if (window.innerWidth > 720) return false; // Only on mobile, let desktop handle it normally
   
-  const modal = document.getElementById('topicModal');
-  const titleEl = document.getElementById('topicModalTitle');
-  const bodyEl = document.getElementById('topicModalBody');
-  
-  if (!modal || !titleEl || !bodyEl) return false;
-  
-  // Get the topic data
-  const topic = SUBS[subjectKey]?.topics[topicKey];
-  if (!topic) return false;
-  
-  currentTopicData = {subject: subjectKey, topic: topicKey};
-  
-  titleEl.textContent = topic.name;
-  
-  // Build the topic content (similar to existing topic view)
-  const rating = R[subjectKey]?.[topicKey]?.rating || 0;
-  const note = R[subjectKey]?.[topicKey]?.note || '';
-  
-  const stars = [1,2,3,4,5].map(i => 
-    `<div class="tstar ${i <= rating ? 'on' : ''}" style="color:${['','var(--red)','var(--orange)','var(--teal)','var(--blue)','var(--green)'][i] || 'var(--muted)'}" data-val="${i}">★</div>`
-  ).join('');
-  
-  bodyEl.innerHTML = `
-    <div class="topic-rating-section">
-      <div class="topic-rating-label">How confident are you?</div>
-      <div class="topic-stars" data-subject="${subjectKey}" data-topic="${topicKey}">
-        ${stars}
-      </div>
-    </div>
-    
-    <div class="topic-notes-section" style="margin-top: 24px;">
-      <div class="topic-notes-label" style="font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: var(--mono); text-transform: uppercase;">Notes</div>
-      <textarea class="topic-notes-input" data-subject="${subjectKey}" data-topic="${topicKey}" 
-        placeholder="Add notes about this topic..." 
-        style="width: 100%; min-height: 120px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; outline: none;">${note}</textarea>
-    </div>
-  `;
-  
-  // Add event listeners for stars
-  bodyEl.querySelectorAll('.tstar').forEach(star => {
-    star.addEventListener('click', function() {
-      const val = parseInt(this.dataset.val);
-      const subj = this.closest('.topic-stars').dataset.subject;
-      const top = this.closest('.topic-stars').dataset.topic;
-      setRating(subj, top, val);
-      
-      // Update stars in modal
-      this.parentElement.querySelectorAll('.tstar').forEach((s, i) => {
-        if (i < val) {
-          s.classList.add('on');
-        } else {
-          s.classList.remove('on');
-        }
-      });
-    });
-  });
-  
-  // Add event listener for notes
-  const notesInput = bodyEl.querySelector('.topic-notes-input');
-  if (notesInput) {
-    notesInput.addEventListener('input', function() {
-      const subj = this.dataset.subject;
-      const top = this.dataset.topic;
-      setNote(subj, top, this.value);
-    });
+  // Just call the desktop pick function directly - it already handles everything
+  if (typeof pick === 'function') {
+    pick(subjectKey, topicKey);
+    return true;
   }
   
-  modal.classList.add('on');
-  document.body.style.overflow = 'hidden';
-  
-  return true; // Indicate that we handled it
+  console.error('pick() function not found');
+  return false;
 }
 
 function closeTopicModal() {
