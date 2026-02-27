@@ -1316,6 +1316,9 @@ window.MathJax = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js" async></script>
 </head>
 <body>
+<!-- Mobile Debug Console (remove after fixing) -->
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
@@ -5583,11 +5586,12 @@ function showSubjectPopup(subject) {
 }
 
 function selectSubject(subject, subtabId) {
-  console.log('Selected:', subject, subtabId);
+  console.log('selectSubject called:', subject, subtabId);
   closeSubjectPopup();
   
   // Temporarily bypass the popup for this selection
   window._bypassMobilePopup = true;
+  console.log('Bypass flag set to TRUE');
   
   // First switch to the main subject
   if (typeof switchSubject === 'function') {
@@ -5604,11 +5608,13 @@ function selectSubject(subject, subtabId) {
     } else {
       console.error('switchSubTab function not found');
     }
-    // Re-enable popup after subtab is selected
-    setTimeout(() => {
-      window._bypassMobilePopup = false;
-    }, 200);
-  }, 150);
+  }, 100);
+  
+  // IMPORTANT: Reset bypass flag - use longer delay to ensure everything completes
+  setTimeout(() => {
+    window._bypassMobilePopup = false;
+    console.log('Bypass flag reset to FALSE - popup will work again');
+  }, 500);
 }
 
 function closeSubjectPopup() {
@@ -5731,6 +5737,8 @@ document.addEventListener('click', function(e) {
 
 // Mobile: Intercept main subject clicks to show popup for maths/further
 window._mobileDebug = true; // Enable debug logging
+window._bypassMobilePopup = false; // Initialize to false
+
 const originalSwitchSubject = window.switchSubject;
 if (typeof originalSwitchSubject === 'function') {
   window.switchSubject = function(subject) {
@@ -5757,6 +5765,20 @@ if (typeof originalSwitchSubject === 'function') {
 } else {
   console.error('❌ switchSubject function not found!');
 }
+
+// Safety: If bypass flag gets stuck, reset it after 2 seconds of no activity
+let bypassResetTimer;
+document.addEventListener('click', () => {
+  if (window._bypassMobilePopup) {
+    clearTimeout(bypassResetTimer);
+    bypassResetTimer = setTimeout(() => {
+      if (window._bypassMobilePopup) {
+        console.warn('⚠️ Bypass flag was stuck - forcing reset');
+        window._bypassMobilePopup = false;
+      }
+    }, 2000);
+  }
+});
 
 
 // Mobile: Update render function to add data attributes to topic cards
