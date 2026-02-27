@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772204931888
+    "updatedAt": 1772205407111
   },
   "R": {
     "maths_py1_m1_0": 9,
@@ -254,7 +254,8 @@
     "maths_sm2_v8_2": 7,
     "maths_sm2_v8_3": 7,
     "maths_sm2_v8_4": 7,
-    "alrtn_fm_fmech1_e1_0": "this is so good ok<div><br></div>"
+    "alrtn_fm_fmech1_e1_0": "this is so good ok<div><br></div>",
+    "alrt_fm_cp2_d1_0": 8
   },
   "QS": {
     "alrtq_fm_cp2_d1": [
