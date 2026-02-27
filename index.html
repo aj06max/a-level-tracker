@@ -5617,15 +5617,7 @@ function closeSubjectPopup() {
 let currentTopicData = null;
 
 function showTopicModal(subjectKey, topicKey) {
-  if (window.innerWidth > 720) return false; // Only on mobile, let desktop handle it normally
-  
-  // Just call the desktop pick function directly - it already handles everything
-  if (typeof pick === 'function') {
-    pick(subjectKey, topicKey);
-    return true;
-  }
-  
-  console.error('pick() function not found');
+  // Mobile now just uses desktop's onclick - no custom modal needed
   return false;
 }
 
@@ -5639,28 +5631,8 @@ function closeTopicModal() {
   }
 }
 
-// Mobile: Intercept topic card clicks on mobile
-document.addEventListener('click', function(e) {
-  if (window.innerWidth > 720) return;
-  
-  const topicCard = e.target.closest('.scard');
-  if (topicCard && topicCard.classList.contains('topic-card')) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    
-    const subjectKey = topicCard.dataset.subject;
-    const topicKey = topicCard.dataset.topic;
-    
-    if (subjectKey && topicKey) {
-      console.log('Opening topic modal for:', subjectKey, topicKey);
-      showTopicModal(subjectKey, topicKey);
-    }
-    return false;
-  }
-}, true);
 
-// Mobile: Intercept main subject clicks to show popup for maths/further
+// Mobile: Update render function to add data attributes to topic cards
 window._mobileDebug = true; // Enable debug logging
 window._bypassMobilePopup = false; // Initialize to false
 
@@ -5705,29 +5677,6 @@ document.addEventListener('click', () => {
   }
 });
 
-
-// Mobile: Update render function to add data attributes to topic cards
-const originalRender = window.render;
-if (typeof originalRender === 'function') {
-  window.render = function() {
-    originalRender();
-    
-    // Add data attributes to topic cards for mobile
-    if (window.innerWidth <= 720) {
-      document.querySelectorAll('.scard').forEach(card => {
-        const onclick = card.getAttribute('onclick');
-        if (onclick) {
-          const match = onclick.match(/pick\('(\w+)','(\w+)'\)/);
-          if (match) {
-            card.dataset.subject = match[1];
-            card.dataset.topic = match[2];
-            card.classList.add('topic-card');
-          }
-        }
-      });
-    }
-  };
-}
 
 // Debug: Log when mobile optimizations are loaded
 console.log('Mobile optimizations loaded. Width:', window.innerWidth, 'isMobile:', window.innerWidth <= 720);
