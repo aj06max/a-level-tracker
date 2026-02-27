@@ -1316,9 +1316,15 @@ window.MathJax = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js" async></script>
 </head>
 <body>
-<!-- Mobile Debug Console (remove after fixing) -->
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+<!-- Mobile Debug Console (mobile only) -->
+<script>
+if (window.innerWidth <= 720) {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+  script.onload = () => eruda.init();
+  document.head.appendChild(script);
+}
+</script>
 
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
@@ -1452,11 +1458,6 @@ window.MathJax = {
       <button class="mob-drawer-close" onclick="closeMobMenu()">✕</button>
     </div>
     <div class="mob-drawer-body">
-      <button class="mob-menu-item" onclick="closeMobMenu();toggleAI()">
-        <div class="mob-menu-icon">✦</div>
-        <div><div class="mob-menu-label">AI Tutor</div><div class="mob-menu-sub">Groq · Llama 3.3</div></div>
-      </button>
-      <div class="mob-menu-sep"></div>
       <button class="mob-menu-item" onclick="closeMobMenu();toggleDesign()">
         <div class="mob-menu-icon" id="mobMenuThemeIcon">🌙</div>
         <div><div class="mob-menu-label" id="mobMenuThemeLabel">Dark Mode</div><div class="mob-menu-sub">Toggle theme</div></div>
@@ -1470,9 +1471,10 @@ window.MathJax = {
         <div><div class="mob-menu-label">Import Data</div><div class="mob-menu-sub">Restore backup</div></div>
         <input type="file" accept=".json" onchange="closeMobMenu();importAllData(this)" style="display:none">
       </label>
-      <button class="mob-menu-item" onclick="closeMobMenu();restoreAutoBackup()">
-        <div class="mob-menu-icon">🔄</div>
-        <div><div class="mob-menu-label">Restore Auto-Backup</div><div class="mob-menu-sub">Last saved state</div></div>
+      <div class="mob-menu-sep"></div>
+      <button class="mob-menu-item" onclick="closeMobMenu();if(window.eruda)eruda.show();else alert('Console not loaded')">
+        <div class="mob-menu-icon">🐛</div>
+        <div><div class="mob-menu-label">Debug Console</div><div class="mob-menu-sub">View logs</div></div>
       </button>
       <div class="mob-menu-sep"></div>
       <button class="mob-menu-item danger" onclick="closeMobMenu();switchProfile()">
@@ -5547,7 +5549,7 @@ function showSubjectPopup(subject) {
     return;
   }
   
-  // Define subtabs for each subject (matching actual IDs from the code)
+  // Define subtabs for each subject (matching desktop structure exactly)
   const subtabs = {
     'maths': [
       {id: 'maths_py1', label: 'Pure Year 1', icon: '📐'},
@@ -5556,10 +5558,10 @@ function showSubjectPopup(subject) {
       {id: 'maths_sm2', label: 'Stats & Mech Y2', icon: '⚙️'}
     ],
     'further': [
-      {id: 'further_fpy1', label: 'Core Pure Y1', icon: '🔬'},
-      {id: 'further_fpy2', label: 'Core Pure Y2', icon: '🧮'},
-      {id: 'further_fm1', label: 'Further Mech Y1', icon: '⚡'},
-      {id: 'further_fm2', label: 'Further Mech Y2', icon: '🎯'}
+      {id: 'fm_cp1', label: 'Core Pure 1', icon: '🔬'},
+      {id: 'fm_cp2', label: 'Core Pure 2', icon: '🧮'},
+      {id: 'fm_fmech1', label: 'Further Mechanics 1', icon: '⚡'},
+      {id: 'fm_fstat1', label: 'Further Statistics 1', icon: '🎯'}
     ]
   };
   
