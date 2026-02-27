@@ -3392,11 +3392,15 @@ function setSM(chId,m){localStorage.setItem(sortModeKey(chId),m);refreshQBank(ch
 function qBankHTML(chId){
   const qs=getQs(chId),n=qs.length,sm=getSM(chId);
   let sorted=[...qs];
-  if(sm==='hard')sorted.sort((a,b)=>(b.rating||0)-(a.rating||0));
-  else if(sm==='easy')sorted.sort((a,b)=>(a.rating||11)-(b.rating||11));
+  // REVERSED: Now 1 = hard (red), 10 = easy (blue)
+  // "Hardest" should show 1, 2, 3 first (low numbers)
+  // "Easiest" should show 10, 9, 8 first (high numbers)
+  if(sm==='hard')sorted.sort((a,b)=>(a.rating||11)-(b.rating||11)); // Low to high (1, 2, 3... = hard first)
+  else if(sm==='easy')sorted.sort((a,b)=>(b.rating||0)-(a.rating||0)); // High to low (10, 9, 8... = easy first)
   const badge=n>0?`<span class="qbank-badge">${n}</span>`:'';
   const sortBtns=n>0?`<div class="sort-bar"><span class="sort-lbl">Sort:</span>${['date','easy','hard'].map(m=>`<button class="sort-btn${sm===m?' on':''}" onclick="setSM('${chId}','${m}');event.stopPropagation()">${m==='date'?'Recent':m==='easy'?'Easiest':'Hardest'}</button>`).join('')}</div>`:'';
-  const cards=sorted.map(q=>{
+  const cards=sorted.map((q, index)=>{
+    const qNumber = index + 1; // Question number in current sort order
     const dc=col(q.rating),dl=q.rating===null?'Rate difficulty':q.rating<=3?'Hard':q.rating<=6?'Medium':'Easy';
     const attCount=q.attempts?q.attempts.length:0;
     const lastAtt=attCount>0?q.attempts[attCount-1]:null;
@@ -3407,6 +3411,7 @@ function qBankHTML(chId){
     }).join('');
     return`<div class="qcard" id="qc_${q.id}">
       <div class="qcard-row">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);font-family:var(--mono);margin-right:8px;flex-shrink:0">Q${qNumber}</div>
         <img class="qthumb" src="${q.src}" onclick="openViewer('${chId}',${qs.indexOf(q)})">
         ${q.ans?((q.ansType||'img')==='video'
           ?`<div class="qthumb" onclick="openViewer('${chId}',${qs.indexOf(q)})" style="display:flex;align-items:center;justify-content:center;background:#000;color:#fff;font-size:18px;width:58px;height:46px;border-radius:7px;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer">▶</div>`
