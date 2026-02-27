@@ -1453,7 +1453,7 @@ window.MathJax = {
       <button class="mob-drawer-close" onclick="closeMobMenu()">✕</button>
     </div>
     <div class="mob-drawer-body">
-      <button class="mob-menu-item" onclick="closeMobMenu();toggleDesign()">
+      <button class="mob-menu-item" onclick="toggleDesign()">
         <div class="mob-menu-icon" id="mobMenuThemeIcon">🌙</div>
         <div><div class="mob-menu-label" id="mobMenuThemeLabel">Dark Mode</div><div class="mob-menu-sub">Toggle theme</div></div>
       </button>
@@ -1896,7 +1896,32 @@ async function activateProfile(profile) {
     }
   } else {
     // AJ mode: Load real data, enable cloud sync
+    
+    // Set initial sync state
+    setSync('sync', 'Loading');
+    
     await loadAJData();
+    
+    // Remove guest pill handler and reset
+    const pill = document.getElementById('syncPill');
+    if (pill) {
+      pill.onclick = null;
+      pill.style.cursor = '';
+    }
+    
+    // Check sync status after loading
+    const lastSync = localGetTs();
+    const now = Date.now();
+    const timeSinceSync = now - lastSync;
+    
+    if (timeSinceSync < 60000) {
+      // Synced within last minute
+      setSync('ok', 'Synced');
+    } else {
+      // Trigger a sync
+      scheduleCloudSave();
+    }
+    
     startRealTimeSync();
   }
   
@@ -2019,6 +2044,14 @@ function switchProfile() {
   R = {}; QS = {};
   currentProfile = null;
   try { localStorage.removeItem('alrt_current_profile'); } catch(e) {}
+  
+  // Reset sync pill
+  const pill = document.getElementById('syncPill');
+  if (pill) {
+    pill.onclick = null; // Remove guest click handler
+    pill.style.cursor = '';
+  }
+  
   closeMobMenu();
   const ps = document.getElementById('profileScreen');
   ps.classList.remove('hidden');
