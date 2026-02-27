@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772202020377
+    "updatedAt": 1772202670720
   },
   "R": {
     "maths_py1_m1_0": 9,
@@ -254,13 +254,14 @@
     "maths_sm2_v8_2": 7,
     "maths_sm2_v8_3": 7,
     "maths_sm2_v8_4": 7,
-    "alrt_fm_fmech1_e1_0": 4
+    "alrt_fm_fmech1_e1_0": 4,
+    "alrt_maths_py1_m1_0": 1
   },
   "QS": {},
   "EX": {},
   "aiHistory": [],
   "savedChats": [],
   "groqKey": "",
-  "design": "classic",
+  "design": "modern",
   "examPhotos": {}
 }
