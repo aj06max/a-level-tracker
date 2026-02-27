@@ -5730,21 +5730,32 @@ document.addEventListener('click', function(e) {
 }, true);
 
 // Mobile: Intercept main subject clicks to show popup for maths/further
+window._mobileDebug = true; // Enable debug logging
 const originalSwitchSubject = window.switchSubject;
 if (typeof originalSwitchSubject === 'function') {
   window.switchSubject = function(subject) {
-    console.log('switchSubject called:', subject, 'bypass:', window._bypassMobilePopup);
+    if (window._mobileDebug) {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📱 switchSubject intercepted');
+      console.log('  Subject:', subject);
+      console.log('  Window width:', window.innerWidth);
+      console.log('  Is mobile?:', window.innerWidth <= 720);
+      console.log('  Bypass flag:', window._bypassMobilePopup);
+      console.log('  Will show popup?:', window.innerWidth <= 720 && (subject === 'maths' || subject === 'fm') && !window._bypassMobilePopup);
+    }
     
     // Only show popup if we're on mobile, it's maths/further, and not bypassing
     if (window.innerWidth <= 720 && (subject === 'maths' || subject === 'fm') && !window._bypassMobilePopup) {
+      if (window._mobileDebug) console.log('  ✅ Calling showSubjectPopup');
       showSubjectPopup(subject === 'maths' ? 'maths' : 'further');
       return;
     }
+    if (window._mobileDebug) console.log('  ℹ️ Calling original function');
     originalSwitchSubject(subject);
   };
-  console.log('Mobile switchSubject override installed');
+  console.log('✅ Mobile switchSubject override installed');
 } else {
-  console.error('switchSubject function not found!');
+  console.error('❌ switchSubject function not found!');
 }
 
 
