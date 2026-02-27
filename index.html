@@ -32,6 +32,7 @@ body.classic-theme .alert.on{border-color:#ffd0ce;background:var(--redbg)}
 body.classic-theme .syncpill.ok{border-color:rgba(52,199,89,.3);background:rgba(52,199,89,.08)}
 body.classic-theme .syncpill.sync{border-color:rgba(0,122,255,.3);background:rgba(0,122,255,.08)}
 body.classic-theme .syncpill.off{border-color:rgba(255,59,48,.3);background:rgba(255,59,48,.08)}
+body.classic-theme .syncpill.guest{border-color:rgba(128,128,128,.3);background:rgba(128,128,128,.08)}
 body.classic-theme{font-family:'Inter',sans-serif}
 body.classic-theme .snum,body.classic-theme .sw-time,body.classic-theme .alert-rank,
 body.classic-theme .alert-score,body.classic-theme .bval,body.classic-theme .syncpill{font-family:'Inter',sans-serif}
@@ -52,6 +53,7 @@ body.pink-theme .alert.on{border-color:#ff6b9d;background:#2d1a25}
 body.pink-theme .syncpill.ok{border-color:rgba(183,148,246,.4);background:rgba(183,148,246,.12)}
 body.pink-theme .syncpill.sync{border-color:rgba(255,133,212,.4);background:rgba(255,133,212,.12)}
 body.pink-theme .syncpill.off{border-color:rgba(255,107,157,.4);background:rgba(255,107,157,.12)}
+body.pink-theme .syncpill.guest{border-color:rgba(212,168,212,.4);background:rgba(212,168,212,.12)}
 body.pink-theme #profileScreen::after{background-image:linear-gradient(rgba(255,133,212,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,133,212,.03) 1px,transparent 1px)}
 body.pink-theme .profile-floater{color:rgba(255,133,212,.15)}
 body.pink-theme .floater{color:rgba(255,133,212,.18)}
@@ -72,6 +74,7 @@ body.light-pink-theme .alert.on{border-color:#d63384;background:#ffe8f5}
 body.light-pink-theme .syncpill.ok{border-color:rgba(155,111,184,.3);background:rgba(155,111,184,.08)}
 body.light-pink-theme .syncpill.sync{border-color:rgba(232,93,156,.3);background:rgba(232,93,156,.08)}
 body.light-pink-theme .syncpill.off{border-color:rgba(214,51,132,.3);background:rgba(214,51,132,.08)}
+body.light-pink-theme .syncpill.guest{border-color:rgba(168,138,168,.3);background:rgba(168,138,168,.08)}
 body.light-pink-theme #profileScreen::after{background-image:linear-gradient(rgba(232,93,156,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,93,156,.03) 1px,transparent 1px)}
 body.light-pink-theme .profile-floater{color:rgba(232,93,156,.15)}
 body.light-pink-theme .floater{color:rgba(232,93,156,.18)}
@@ -500,6 +503,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .syncpill.ok{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)}
 .syncpill.sync{color:var(--accent);border-color:rgba(255,107,0,.3);background:rgba(255,107,0,.08)}
 .syncpill.off{color:var(--red);border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.08)}
+.syncpill.guest{color:var(--muted);border-color:rgba(128,128,128,.3);background:rgba(128,128,128,.08);cursor:pointer}
 button,input,select,textarea{touch-action:manipulation}
 /* prevent iOS zoom on input focus */
 @media(max-width:720px){
@@ -1317,28 +1321,6 @@ window.MathJax = {
 </head>
 <body>
 
-<!-- Mobile Debug Logger (temporary) -->
-<div id="mobileDebugLog" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:10px;max-height:200px;overflow-y:auto;z-index:99999;padding:8px;display:none;border-top:2px solid #0f0"></div>
-<script>
-if (window.innerWidth <= 720) {
-  const debugLog = document.getElementById('mobileDebugLog');
-  debugLog.style.display = 'block';
-  const originalConsoleLog = console.log;
-  console.log = function(...args) {
-    originalConsoleLog.apply(console, args);
-    const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
-    const line = document.createElement('div');
-    line.textContent = new Date().toLocaleTimeString() + ' ' + msg;
-    debugLog.appendChild(line);
-    debugLog.scrollTop = debugLog.scrollHeight;
-    // Keep only last 20 lines
-    while (debugLog.children.length > 20) {
-      debugLog.removeChild(debugLog.firstChild);
-    }
-  };
-}
-</script>
-
 <!-- ═══ PROFILE SELECTION SCREEN ═══════════════════════════ -->
 <div id="profileScreen">
   <div class="profile-floaters" id="profileFloaters">
@@ -1900,6 +1882,18 @@ async function activateProfile(profile) {
   if(profile === 'guest') {
     // Guest mode: Load sample data, local storage only
     loadGuestData();
+    // Set sync pill to show guest mode
+    setSync('guest', 'Guest - No Sync');
+    const pill = document.getElementById('syncPill');
+    if (pill) {
+      // Add click handler for mobile to explain
+      pill.style.cursor = 'pointer';
+      pill.onclick = function() {
+        if (window.innerWidth <= 720) {
+          alert('Guest Profile\n\nLocal only - no cloud sync.\n\nSwitch to AJ profile to enable cloud sync across devices.');
+        }
+      };
+    }
   } else {
     // AJ mode: Load real data, enable cloud sync
     await loadAJData();
@@ -2390,12 +2384,13 @@ function setSync(state, msg){
   const pill=document.getElementById('syncPill');
   const txt=document.getElementById('syncTxt');
   if(!pill||!txt) return;
-  pill.classList.remove('ok','sync','off');
+  pill.classList.remove('ok','sync','off','guest');
   pill.classList.add(state);
   txt.textContent=msg;
   if(state==='ok') pill.title='Synced to cloud';
   if(state==='sync') pill.title='Saving to cloud...';
   if(state==='off') pill.title='Cloud save failed (still saved locally)';
+  if(state==='guest') pill.title='Guest profile - local only, no cloud sync. Switch to AJ profile to enable sync.';
 }
 
 function localTouchTs(){
@@ -2408,12 +2403,10 @@ function localGetTs(){
 }
 
 function scheduleCloudSave(){
-  console.log('📅 scheduleCloudSave called');
   setSync('sync','Syncing');
   localTouchTs();
   if(_cloudTimer) clearTimeout(_cloudTimer);
   _cloudTimer=setTimeout(cloudSaveNow, 900);
-  console.log('📅 Cloud save scheduled for 900ms from now');
 }
 
 function cloudPayload(){
@@ -2632,43 +2625,20 @@ document.addEventListener('visibilitychange', () => {
 
 
 function save(){
-  console.log('🔴 SAVE CALLED');
-  console.log('  Current profile:', currentProfile);
-  console.log('  Window width:', window.innerWidth);
-  
   // Only save to localStorage if not guest mode
   if(currentProfile !== 'guest') {
-    console.log('  ✅ Saving to localStorage (not guest)');
-    try{
-      localStorage.setItem('alrt_R',JSON.stringify(R));
-      localStorage.setItem('alrt_QS',JSON.stringify(QS));
-      console.log('  ✅ R and QS saved');
-    }catch(e){
-      console.error('  ❌ Failed to save R/QS:', e);
-    }
-    try{
-      localStorage.setItem('alrt_EX',JSON.stringify(EX));
-      console.log('  ✅ EX saved');
-    }catch(e){
-      console.error('  ❌ Failed to save EX:', e);
-    }
+    try{localStorage.setItem('alrt_R',JSON.stringify(R));localStorage.setItem('alrt_QS',JSON.stringify(QS))}catch(e){}
+    try{localStorage.setItem('alrt_EX',JSON.stringify(EX));}catch(e){}
     
     // Auto-backup after each save
-    console.log('  🔄 Running auto-backup...');
     autoBackup();
-  } else {
-    console.log('  ⏭️ Skipping localStorage save (guest mode)');
   }
   
   // Only trigger cloud sync for AJ profile
   if(currentProfile === 'aj') {
-    console.log('  ☁️ Triggering cloud sync (AJ profile)');
     localTouchTs();
     scheduleCloudSave();
-  } else {
-    console.log('  ⏭️ Skipping cloud sync (not AJ profile)');
   }
-  console.log('🔴 SAVE COMPLETE');
 }
   
 function load(){
