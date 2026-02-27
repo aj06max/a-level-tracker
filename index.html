@@ -1467,6 +1467,10 @@ window.MathJax = {
         <div><div class="mob-menu-label">Import Data</div><div class="mob-menu-sub">Restore backup</div></div>
         <input type="file" accept=".json" onchange="closeMobMenu();importAllData(this)" style="display:none">
       </label>
+      <button class="mob-menu-item" onclick="closeMobMenu();restoreAutoBackup()">
+        <div class="mob-menu-icon">🔄</div>
+        <div><div class="mob-menu-label">Restore Auto-Backup</div><div class="mob-menu-sub">Last saved state</div></div>
+      </button>
       <div class="mob-menu-sep"></div>
       <button class="mob-menu-item danger" onclick="closeMobMenu();switchProfile()">
         <div class="mob-menu-icon">⇄</div>
@@ -2617,6 +2621,9 @@ function save(){
   if(currentProfile !== 'guest') {
     try{localStorage.setItem('alrt_R',JSON.stringify(R));localStorage.setItem('alrt_QS',JSON.stringify(QS))}catch(e){}
     try{localStorage.setItem('alrt_EX',JSON.stringify(EX));}catch(e){}
+    
+    // Auto-backup after each save
+    autoBackup();
   }
   
   // Only trigger cloud sync for AJ profile
@@ -2625,12 +2632,6 @@ function save(){
     scheduleCloudSave();
   }
 }
-  
-  // Only trigger cloud sync for AJ profile
-  if(currentProfile === 'aj') {
-    localTouchTs(); // Update timestamp
-    scheduleCloudSave();
-  }
   
 function load(){
   try{const d=localStorage.getItem('alrt_R');if(d)Object.assign(R,JSON.parse(d))}catch(e){}
@@ -5219,30 +5220,81 @@ function exportAllData() {
     const exportData = {
       version: 1,
       exportedAt: new Date().toISOString(),
+      profile: currentProfile,
       R: R,
       QS: QS,
       EX: EX,
       notes: {},
-      savedChats: []
+      savedChats: [],
+      theme: localStorage.getItem(`alrt_design_${currentProfile}`) || 'modern',
+      pinkUnlocked: localStorage.getItem('pink_unlocked') === 'true'
     };
     // Grab all alrtn_ (notes) keys from R
     for (const [k, v] of Object.entries(R)) {
       if (k.startsWith('alrtn_')) exportData.notes[k] = v;
     }
-    // Grab saved chats
+    // Grab saved chats for this profile
     try {
-      exportData.savedChats = JSON.parse(localStorage.getItem('ai_saved_chats') || '[]');
+      exportData.savedChats = JSON.parse(localStorage.getItem(`ai_saved_chats_${currentProfile}`) || '[]');
     } catch(e) {}
     
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'alevel-tracker-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = `alevel-tracker-${currentProfile}-` + new Date().toISOString().slice(0,10) + '.json';
     a.click();
     URL.revokeObjectURL(url);
+    
+    console.log('✅ Data exported successfully');
   } catch(e) {
     alert('Export failed: ' + e.message);
+  }
+}
+
+// Auto-export to localStorage backup (runs after each save)
+function autoBackup() {
+  try {
+    const backupData = {
+      version: 1,
+      backedUpAt: new Date().toISOString(),
+      profile: currentProfile,
+      R: R,
+      QS: QS,
+      EX: EX
+    };
+    localStorage.setItem(`alrt_autobackup_${currentProfile}`, JSON.stringify(backupData));
+    console.log('🔄 Auto-backup completed');
+  } catch(e) {
+    console.warn('Auto-backup failed:', e.message);
+  }
+}
+
+// Restore from auto-backup
+function restoreAutoBackup() {
+  try {
+    const backupData = JSON.parse(localStorage.getItem(`alrt_autobackup_${currentProfile}`));
+    if (!backupData || !backupData.R || !backupData.QS) {
+      alert('❌ No auto-backup found for this profile.');
+      return;
+    }
+    
+    const backupDate = backupData.backedUpAt ? new Date(backupData.backedUpAt).toLocaleString() : 'unknown';
+    
+    if (!confirm(`Restore auto-backup from ${backupDate}?\n\nThis will restore your last saved state.`)) {
+      return;
+    }
+    
+    R = backupData.R;
+    QS = backupData.QS;
+    EX = backupData.EX || {};
+    
+    save();
+    render();
+    
+    alert('✅ Auto-backup restored successfully!');
+  } catch(e) {
+    alert('❌ Restore failed: ' + e.message);
   }
 }
 
@@ -5259,7 +5311,10 @@ function importAllData(input) {
         return;
       }
       
-      if (!confirm(`Import backup from ${data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'unknown date'}?\n\nThis will MERGE with your current data (existing entries kept, imported entries added/updated).`)) {
+      const backupProfile = data.profile || 'unknown';
+      const backupDate = data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'unknown date';
+      
+      if (!confirm(`Import backup from ${backupDate}?\n\nProfile: ${backupProfile}\nCurrent profile: ${currentProfile}\n\nThis will MERGE with your current data (existing entries kept, imported entries added/updated).`)) {
         input.value = '';
         return;
       }
@@ -5282,15 +5337,26 @@ function importAllData(input) {
       // Merge EX (exams)
       if (data.EX) Object.assign(EX, data.EX);
       
-      // Merge saved chats
+      // Merge saved chats for current profile
       if (data.savedChats && data.savedChats.length) {
         let existing = [];
-        try { existing = JSON.parse(localStorage.getItem('ai_saved_chats') || '[]'); } catch(e) {}
+        try { existing = JSON.parse(localStorage.getItem(`ai_saved_chats_${currentProfile}`) || '[]'); } catch(e) {}
         const existingChatIds = new Set(existing.map(c => c.id));
         for (const chat of data.savedChats) {
           if (!existingChatIds.has(chat.id)) existing.push(chat);
         }
-        try { localStorage.setItem('ai_saved_chats', JSON.stringify(existing)); } catch(e) {}
+        try { localStorage.setItem(`ai_saved_chats_${currentProfile}`, JSON.stringify(existing)); } catch(e) {}
+      }
+      
+      // Import theme if present
+      if (data.theme) {
+        try { localStorage.setItem(`alrt_design_${currentProfile}`, data.theme); } catch(e) {}
+      }
+      
+      // Import pink unlock status
+      if (data.pinkUnlocked) {
+        try { localStorage.setItem('pink_unlocked', 'true'); } catch(e) {}
+        pinkUnlocked = true;
       }
       
       // Save and re-render
@@ -5458,15 +5524,23 @@ if (window.innerWidth <= 720) {
 
 // Mobile: Subject popup (for Maths/Further Maths subtabs)
 function showSubjectPopup(subject) {
-  if (window.innerWidth > 720) return; // Only on mobile
+  if (window.innerWidth > 720) {
+    console.log('showSubjectPopup: Not mobile, skipping');
+    return; // Only on mobile
+  }
   
-  console.log('showSubjectPopup called for:', subject);
+  console.log('showSubjectPopup called for:', subject, 'windowWidth:', window.innerWidth);
   
   const popup = document.getElementById('subjectPopup');
   const optionsContainer = document.getElementById('subjectPopupOptions');
   
-  if (!popup || !optionsContainer) {
-    console.error('Popup elements not found! popup:', popup, 'container:', optionsContainer);
+  if (!popup) {
+    console.error('Popup element not found!');
+    return;
+  }
+  
+  if (!optionsContainer) {
+    console.error('Options container not found!');
     return;
   }
   
@@ -5488,7 +5562,12 @@ function showSubjectPopup(subject) {
   
   const options = subtabs[subject] || [];
   
-  console.log('Found', options.length, 'options for', subject);
+  console.log('Found', options.length, 'options for subject:', subject);
+  
+  if (options.length === 0) {
+    console.error('No options found for subject:', subject);
+    return;
+  }
   
   optionsContainer.innerHTML = options.map(opt => `
     <div class="subject-option" onclick="selectSubject('${subject}', '${opt.id}')">
@@ -5500,7 +5579,7 @@ function showSubjectPopup(subject) {
   popup.classList.add('on');
   document.body.style.overflow = 'hidden';
   
-  console.log('Popup should now be visible');
+  console.log('Popup displayed with class "on", innerHTML length:', optionsContainer.innerHTML.length);
 }
 
 function selectSubject(subject, subtabId) {
