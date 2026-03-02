@@ -1,7 +1,7 @@
 {
   "meta": {
     "v": 4,
-    "updatedAt": 1772231727911
+    "updatedAt": 1772460041889
   },
   "R": {
     "maths_py1_m1_0": 9,
@@ -302,6 +302,6 @@
   "aiHistory": [],
   "savedChats": [],
   "groqKey": "",
-  "design": "modern",
+  "design": "classic",
   "examPhotos": {}
 }
